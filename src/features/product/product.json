@@ -1,0 +1,38 @@
+[
+    {
+        "productName": "לבן טבעי Fenna חדר",
+        "descripttion":"חדר תינוקות בעיצוב עכשווי מבית המותג ההולנדי המוביל בעולם Bopita המחיר לא כולל ארון, ניתן להוסיף ארון בתוספת תשלום",
+        "PictureRouting": [
+            "http://localhost:4000/חדרלבןטבעי.png","http://localhost:4000/לוללבן.png",
+            "http://localhost:4000/לוללבן2.png","http://localhost:4000/שידהלבנה1.png",
+            "http://localhost:4000/שידהלבנה3.png","http://localhost:4000/שידהלבנה2.png"
+
+
+        ],
+        "category": "Furniture",
+        "price": "3824"
+    },
+    
+    {
+        "productName": "לול עץ גולן",
+        "descripttion":"לול עץ איכותי עשוי עץ מלא, קומפקטי עם גלגלים – נוח במיוחד להעברה מחדר לחדר! המזרן שבתמונה להמחשה בלבד, ואינו מגיע יחד עם הלול.",
+        "PictureRouting": [
+            "http://localhost:4000/לולעץ.png"
+
+        ],
+        "category": "Furniture",
+        "price": "499"
+    },
+    
+    {
+        "productName": " Retro לול עץ טבעי",
+        "descripttion":"חדש ובלעדי ברשת מוצצים! לול רטרו עם מוטות עגולים ורגליים משופעות מבית Bopita, תחתית הלול ניתנת לשינוי גובה בהתאם להתפתחות התינוק.",
+        "PictureRouting": [
+            "http://localhost:4000/לולעץטבעי1.png","http://localhost:4000/לולעץטבעי2.png",
+            "http://localhost:4000/לועץטבעי3.png"
+        ],
+        "category": "Furniture",
+        "price": "599"
+    }
+    
+]

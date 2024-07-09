@@ -1,0 +1,8 @@
+.SmallBasket {
+    /* display: none; */
+    /* position: absolute; */
+    /* top: 60px; */
+    /* right: 0; */
+    /* width: 300px; */
+    animation: animate__flipInX;
+}

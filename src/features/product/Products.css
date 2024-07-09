@@ -1,0 +1,713 @@
+.allProducts{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    width: 80%;
+    margin-left: 10%;
+    margin-top:3% ;
+    /* gap: 10px; */
+    /* width: 100%; */
+    /* box-shadow: 3%; */
+    /* margin-left: 3%; */
+}
+
+Toys .a1{
+    color: red;
+}
+.icon{
+    margin-top: 1.5%;
+    width: 5%;
+    margin-left:2%;
+}
+.icons{
+  justify-content: center;
+  align-items: center;
+}
+
+.link{
+    text-decoration: none;
+    font-size: 100%;
+    color: black;
+    text-align: center;
+}
+.allLinks{
+    margin-left:2%;
+    margin-bottom: 2%;
+    margin-top:none;
+    align-items: center;
+    justify-content: center;
+    /* background-color: #bea7d2; */
+}
+
+.NavBarIcons{
+ margin-left: 80%;
+ 
+}
+/* #Login{
+  margin-right: 6%;
+} */
+
+
+
+.logo{
+    margin-top: 2%;
+    width: 20%;
+    
+}
+
+/* .productImg{
+    width: 83%;
+margin-top: 5%;
+} */
+/* .eachProduct h1{
+color: rgb(134, 13, 134);
+text-decoration: none;
+font-size:100%;
+margin-bottom: 3%;
+
+} */
+
+/* .eachProductImg{
+    width:70%;
+    margin-top: 5%;
+    margin-right: 1%;
+    margin-left: 25%;
+}
+.theHoleDialog{
+    height: 550px;
+    width: 550px;
+}
+.next{
+    margin-left: 50%;
+    width:5px;
+}
+.eachProduct{
+    border-style: solid;
+    margin-right: 1%;
+} */
+
+/* ----------------------------- */
+.productCard {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #e0e0e0; /* צבע גבול חלק */
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  margin-bottom: 20px;
+  width: 290px;
+  height: 395px;
+  margin-right: 15px;
+  justify-content: center; /* מרכז את התוכן באופן אופקי */
+  align-items: center; 
+}
+
+.productCard:hover {
+  transform: translateY(-5px);
+}
+
+.productImage img {
+  width: 100%;
+  height: 100%;
+  height: auto;
+  text-decoration: none;
+}
+
+.productDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 2%;
+  /* padding: 20px; */
+  background-color: #f5f5f5; /* צבע רקע פנימי */
+}
+
+.productName {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+  font-weight: bold; /* מוסיף עובי לטקסט */
+}
+
+.productPrice {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.productImage {
+  width: 200px; /* קבע גודל רוחב קבוע */
+  height: 200px; /* קבע גודל גובה קבוע */
+}
+
+.productDetails {
+  width: 200px; /* קבע גודל רוחב קבוע */
+  height: 100px; /* קבע גודל גובה קבוע */
+}
+
+ 
+
+/* סגנונות נוספים עבור דף המוצר הפרטי */
+/* .container {
+    padding: 20px;
+    width: 80%;
+    margin: auto;
+  }
+  
+  .product-image {
+    width: 100%;
+    height: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .image-controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .image-controls button {
+    margin: 0 10px;
+  }
+  
+  .productDetails {
+    text-align: center;
+  }
+  
+  .productName {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .productPrice {
+    font-size: 1.25rem;
+    color: #666;
+  }
+  
+  /* סגנונות נוספים לכפתור חזרה */
+  /* .back-button {
+    margin-top: 20px;
+  } */ */
+
+  .product-image {
+    max-width: 100%;
+    max-height: calc(100vh - 300px);
+    display: block;
+    margin: 0 auto;
+  }
+  
+  .image-controls {
+    text-align: center;
+  }
+  
+  .image-controls .prev-button,
+  .image-controls .next-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  
+  .image-controls .prev-button:hover,
+  .image-controls .next-button:hover {
+    transform: scale(1.1);
+  }
+  
+
+  .arrow-icon {
+    /* width: 10px; 
+    height: 10px;  */
+    transition: transform 0.3s ease; /* הוספת אנימציה כאשר מעבירים על החץ בעזרת העכבר */
+  }
+  
+  .arrow-icon:hover {
+    transform: scale(1.2); /* הגדלת החץ בעזרת העכבר */
+  }
+  
+
+  .basket-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* justify-content: space-between; */
+    gap: 10px;;
+}
+
+.basket-card {
+  margin-left: 10%;
+  width: 80vw; /* רוחב הכרטיסייה ב-80% מרוחב המסך */
+  height: 20vh; /* אורך הכרטיסייה ב-30% מגובה המסך */
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  margin-right: 5%;
+}
+
+.basket-card-image {
+  width: 100%;
+  height: 100%;
+  margin-top: 2.5%;
+  margin-left: 5%;
+  margin-right: 5% !important;
+  object-fit: cover; /* התמונה תשתמש במלואי את רוחב ואורך התמונה למלא את כל האזור המוקצה לה */
+}
+
+.basket-card-content {
+  flex: 1;
+  padding: 12px 16px !important; /* שימוש ב!important */
+  margin-top: 2% !important;
+  margin-right: 5% !important; /* שימוש באחוזים */
+  flex-grow: 1;
+}
+
+.productDivImage{
+  justify-content: center;
+  align-items: center; 
+  text-align: center;
+  margin-left: 17%;
+}
+
+.dialogDescriptition{
+  margin-bottom:2%;
+  
+
+}
+.signUpBasketIcons{
+  margin-right:80%;
+  margin-top: 1%;
+}
+
+/* .AccountCircleIcon{
+  margin-top: 2%;
+  margin-left: 3%;
+} */
+
+.basket-card-image img {
+  margin-right: 1%;
+ 
+}
+
+/* הגדרות עיצוב עבור הסל המוקטן */
+.SmallBasket {
+  /* display: none; */
+  /* position: absolute; */
+  /* top: 60px; */
+  /* right: 0; */
+  /* width: 300px; */
+  background-color: white;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.1);
+  overflow: auto; 
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
+  height: -1px; 
+  border-bottom-style:solid ;
+  border-bottom-width:15px ;
+  border-bottom-color:   #A76CED;
+
+  /* z-index: 9999; */
+  /* margin-top: 20%; */
+}
+
+.SmallBasket ::-webkit-scrollbar {
+  display: none;
+
+}
+
+.SmallBasket-container {
+  padding: 10px;
+
+}
+
+.basket-card {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.basket-card-image {
+  width: 80px;
+  height: auto;
+  margin-right: 10px;
+}
+
+.basket-card-content {
+  flex: 1;
+}
+
+/* סגנון כפתור סגירה */
+.close-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+}
+
+.close-button:hover {
+  color: #666;
+}
+
+
+/* .IconButton{
+  margin-left: 50%;
+} */
+
+.arrow-icon {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.details-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.prodPicture {
+  width: 70%;
+height: 80%;
+justify-content: center; /* ייעוד להעמדת הפריטים בציר האופקי */
+align-items: center; /* ייעוד להעמדת הפריטים בציר האנכי */
+height: 100%;
+margin-top: 2%;
+}
+
+.prodPicture .prodImgePicture {
+  max-width: 100%;
+  height: auto;
+  margin-right: 8%;
+  margin-top: 20%;
+  align-items: center;
+  justify-content: center;
+  width: 65%;
+  height: 50%;
+}
+
+.image-controls {
+  display: flex;
+}
+
+.prodDetails {
+  width: 45%;
+  /* margin-left: 30%; */
+  /* margin-top: 30%; */
+}
+
+.prodName, .prodPrice, .prodDescripttion {
+  margin-bottom: 10px;
+}
+
+.prodPrice, .removeAndAddToBasketButtons{
+margin-left: 37%;
+}
+
+/* .prodPrice, .removeAndAddToBasketButtons{
+margin-left: 20%;
+} */
+
+.AddToBasketButton{
+  margin-left: 20%;
+
+}
+
+
+.prodName{
+font-size: x-large;
+}
+
+.prodDescripttion{
+  text-align: center;
+  direction: rtl;
+  margin-left: 2%;
+  border-bottom: solid;
+  border-bottom-color: #666;
+  border-bottom-width:1px;
+  padding-bottom: 2%;
+  font-size:medium;
+  color: #999;
+}
+
+.order-controls {
+  margin-top: 41%;
+  /* justify-content: center;
+  text-align: center;
+  align-items: center; */
+  margin-left: 20%;
+}
+.prodDetailsAndButtons{
+  margin-top: 5%;
+  /* margin-left: 40%; */
+  font-size:large;
+    /* white-space: nowrap; */
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    direction: rtl;
+
+}
+
+ .nextAndPrevButtons .prev-button{
+  /* margin-left: 50px; */
+} 
+
+.nextAndPrevButtons .next-button{
+  /* margin-left: 50px; */
+}
+
+.signUpBasketIcons{
+margin-bottom: 5%;
+}
+
+.icons{
+  
+}
+
+.pagenationButtons{
+  margin-top: 2%;
+  margin-bottom: 2%;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagenationButtons .nextPage{
+  margin-left:3.5%;
+  width: 8%;
+
+
+}
+.pagenationButtons .prevPage{
+  width: 8%;
+  margin-left: 3%;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr auto; /* יצירת שתי עמודות, עם הראשונה כמו שיש והשנייה מתכווננת */
+  align-items: center; /* ממרכז את האלמנטים אנכית */
+}
+
+.NavBarIcons {
+  display: flex;
+  justify-content: flex-end; /* מסדר את האייקונים בצד ימין של ה-container */
+  align-items: center;
+  gap: 3%;  /* מרווח בין האייקונים */
+  
+}
+
+.logo {
+  justify-self: center; /* ממרכז את הלוגו באמצע */
+  max-width: 100%; /* גודל התמונה מקביל לאייקונים */
+  margin-left: 30%;
+}
+
+.loginLink {
+  align-self: center; /* ממרכז את הלינק אנכית */
+  margin-right: 2%; /* מרווח מימין */
+  color: black;
+  text-decoration: none;
+}
+
+.NavBarIcons > div {
+  display: flex; /* מציג את הטקסט והאייקון במילוי שלם של הגובה */
+  align-items: center; /* ממרכז את הטקסט אנכית ביחס לגובה של האייקון */
+ margin-right: 15%;
+}
+
+.NavBarIcons .userName {
+    margin-right:8px; /* מרווח בין הטקסט לאייקון */
+}
+
+.NavBarIcons .localGroceryStoreIcon {
+  margin-right:20%; /* מרווח של 3% מהאייקון בצד ימין */
+}
+
+.userName {
+  white-space: nowrap;
+  color:black;
+  margin-left: 20%;
+}
+
+.loginLink{
+  white-space: nowrap;
+
+}
+
+.logOutButton{
+  white-space: nowrap;
+
+}
+
+.TableContainer{
+  width: 90%;
+  margin-left: 5%;
+}
+
+.AdressInput{
+  margin-top: 5%;
+}
+
+.productNameAndDescripttion{
+  margin-top:0.5%;
+
+  width: 80%;
+  direction: rtl;
+
+
+}
+
+.small-thumbnail {
+  width: 50px;
+  height: 50px;
+  margin: 5px;
+  cursor: pointer;
+  
+}
+
+.small-thumbnail:hover {
+  transform: scale(1.1);
+}
+
+.image-thumbnails {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  text-align: center;
+  align-items: center;
+  /* margin-left: 6%; */
+}
+
+.picturesIcons{
+  margin-top: 3%;
+}
+.leftSideOfDetails{
+  direction: rtl;
+  margin-left: 40%;
+}
+.pictureIcon{
+  margin-right: 1.5%;
+  padding: 1%;
+
+}
+
+/* .SmallBasketInDetails{
+  margin-left: 50%;
+} */
+.selected-thumbnail {
+  border: solid #666 ;
+  border-width: 2px;
+  
+}
+.BackToShop{
+  margin-right: 1.5%;
+}
+.LogInForm{
+
+  margin-bottom: 10%;
+  /* border-style: solid;
+  border-width: 1px; */
+}
+
+.LogInForm div{
+  margin-top: 1%;
+    /* margin-left: 25%;
+  margin-right: 25%; */
+}
+
+.NavBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* כדי לוודא שה-NavBar יעלה מעל כל האלמנטים האחרים */
+}
+.basket-card .AddToAmount{
+  margin-left:25% ;
+  /* margin-right: 3%; */
+}
+
+.tottals{
+  margin-right: 50%;
+}
+
+.icons {
+  display: flex;
+  justify-content: center;
+}
+
+.link-image {
+  position: relative; /* הגדרת ה- DIV של הניתוב כאב עבור התמונה */
+  display: inline-block; /* כדי שה-DIV יתאים רק לגודל הנדרש סביב הניתוב והתמונה */
+}
+
+.link-image .icon {
+  position: absolute; /* הגדרת התמונה כ- absolute כדי שתופיע מעל הניתוב */
+  top: -20px; /* מיקום עליון מהניתוב */
+  left: 50%; /* מיקום אופקי - ממורכז על פי ה-DIV של הניתוב */
+  transform: translateX(-50%); /* מיקום אופקי - ממורכז על פי עצמה של התמונה */
+}
+
+
+.link-image .link {
+  text-decoration: none;
+  color: black;
+  font-size: 16px;
+  white-space: nowrap; /* מניעת מעבר שורה */
+}
+
+.links-container > * {
+  display: inline-block;
+}
+
+.links-container{
+  margin-top: 2%;
+  margin-bottom: 2%;
+  text-align: center;
+  align-items: center;
+}
+
+.linkimage {
+  margin-left: 1.5%;
+  text-decoration: none;
+color: black;
+}
+
+.NavBar {
+  position: fixed; /* קובע את המיקום של ה-Navigation Bar כקבוע בחלון */
+  top: 0; /* מציין שה-Navigation Bar יהיה מוצמד לחלק העליון של החלון */
+  width: 100%; /* קובע את הרוחב של ה-Navigation Bar למלוא רוחב החלון */
+  background-color: #ffffff; /* קובע צבע רקע ל-Navigation Bar */
+  z-index: 1000; /* מציין את המעמד של ה-Navigation Bar מול אלמנטים אחרים */
+}
+
+.NavBar + div {
+  padding-top: 60px; /* מרווח כדי להחיות את הנבבר */
+}
+
+.aditAdnDeleteButton{
+  margin-left: 12%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+  
+

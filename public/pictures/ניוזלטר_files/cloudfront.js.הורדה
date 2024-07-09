@@ -1,0 +1,516 @@
+//   <meta name='ip_address' content=''> - lambda func?
+// prices and link to item page - for all item grids
+// current_customer/items - no index or limit acceess only if logged_in
+// ****** cloudfornt_js code - came from server in cloudfornt stores enabled - start ****** 
+try {
+  function setDateNow(){
+    // the en-GB will make this format day/month/year
+    var dateNowParams = { year: 'numeric', month: '2-digit', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+    var dateNow = new Date(Date.now()).toLocaleString('en-GB', dateNowParams).replace(',','');
+    var meta_date_now = document.querySelector("meta[property='date_now']");
+    if(meta_date_now && meta_date_now.content.length == 0){
+      meta_date_now.content = dateNow;
+      console.log( "Date was set (cloudfront.js)" );
+    }
+  }  
+  setDateNow(); // set time now for item page
+} catch (e) {
+  console.log(e.message);
+}
+
+function cloudfront(message) {
+  console.log( "cloudfront.js v35" + " " + message);
+  try {
+    tempReplacePaginationLinks();  // this will fix pagination links - temp solution 
+    setReferer();                  // will save referer to Cookie for 24 hours if hot exsist
+    setRefererInputs();            // insert referer value in hidden inputs at flying_cart form and item page forms
+    setCookieNumOfCartItems();     // set num_of_cart_items from url
+    setCookieMobileAndReplaceLinks(); // set cookie mobile=0/1 from url and replace links if needed 
+    setNumOfCartItems();           // set num_of_cart_items in the cart
+    addItemToCompareChangeHref();  // change compare link
+    setCustomerDataIfLoggedIn();   // this func will run only if logged in cookie is here
+  } catch (e) {
+    console.log(e.message);
+  }
+
+  // general functions start
+  function setCookie(cname, cvalue, exhours) {
+      if (exhours== -1) {
+        // this will create a session type cookie - when the browser will be closed the cookie will be gone
+        var expires = "";
+      } 
+      else {
+        var d = new Date();
+        d.setTime(d.getTime() + (exhours * 60 * 60 * 1000));
+        var expires = "expires="+d.toUTCString();
+      }
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+  function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
+      }
+      return "";
+  }
+
+  function setValueToCookie(cookie_name, value, ttl) {
+    var current_cookie_name = getCookie(cookie_name);
+    if (current_cookie_name == "" && value != undefined) {
+      setCookie(cookie_name, value, ttl);
+    }
+  }
+  
+  function setInputField(cookie_name, selector_name, attr) {
+    var current_cookie_value = getCookie(cookie_name);
+    if (current_cookie_value != "") {
+      var current_target = $(selector_name);
+      if (current_target.size() > 0) {
+        current_target.attr(attr, current_cookie_value);
+      }
+    }
+  }
+
+  function setInputText(cookie_name, selector_name) {
+    var current_cookie_value = getCookie(cookie_name);
+    if (current_cookie_value != "") {
+      var current_target = $(selector_name);
+      if (current_target.size() > 0) {
+        current_target.text(current_cookie_value);
+      }
+    }
+  }
+
+  function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }  
+
+  // general functions end
+  
+  function addClassToElement(tag_name, add_class) {
+      var element, name, arr;
+      element = document.getElementsByTagName(tag_name)[0];
+      arr = element.className.split(" ");
+      if (arr.indexOf(add_class) == -1) {
+          element.className += " " + add_class;
+      }
+  }
+
+  function setCurrentCustomerLoggedInCss(current_customer_logged_in_css){
+    if (current_customer_logged_in_css) {
+      addClassToElement('body', current_customer_logged_in_css);
+    }
+  }
+
+  function is_logged_in(){
+    var current_customer_logged_in_css = getCookie('current_customer_logged_in_css'); //<%= Customer::CURRENT_CUSTOMER_LOGGED_IN_CSS_NAME %>
+    if (current_customer_logged_in_css) {
+      var current_customer_logged_in_css_spaces = current_customer_logged_in_css.replace(/\+/g, " ");
+      return current_customer_logged_in_css_spaces;
+    }
+    else {
+      return false;
+    }
+  }
+
+  // setReferer start
+  function setReferer() {
+    setValueToCookie("referer_url", document.referrer, 24);
+  }
+  
+  function setRefererInputs() {
+    setInputField("referer_url", "form#flying_cart #referer_url", "value");
+    setInputField("referer_url", "form#new_order #referer_url", "value");
+    setInputField("referer_url", "meta[name=referer_url]", "content");
+  }
+  // setReferer end
+
+  // num_of_cart_items start
+   function setCookieNumOfCartItems() {
+     var num_of_cart_items = getParameterByName("num_of_cart_items");
+     if (num_of_cart_items) {
+       setCookie("num_of_cart_items", num_of_cart_items, -1);
+     }
+   }
+   
+   function setNumOfCartItems(){
+     setInputText("num_of_cart_items", "span#link_order_with_counter b, span.cart_with_items_counter");
+   }
+  // num_of_cart_items end
+  
+  // setCookieMobileAndReplaceLinks start
+  function setCookieMobileAndReplaceLinks() {
+    var mobile = getParameterByName("mobile");
+    if (mobile) {
+      setCookie("mobile", mobile, 24); // set mobile for 24 hours
+    }
+    var desktop_on_mobile = getCookie('mobile');
+    if (desktop_on_mobile == '0') {
+      replaceMobileLinks();
+    }
+  }
+  
+  function replaceMobileLinks(){
+    var siteHost   = location.host.toString();
+    var site_links = $("a[href*='"+siteHost+"'],a[href]:not([href^='http'])");
+    jQuery.each(site_links, function( i, element ) {
+      var href_string = element.href.toString();
+      if (href_string.indexOf("mobile=0") != -1) {
+        var href_with_mobile = "";
+      }
+      else 
+        if (href_string.indexOf("?") != -1) {
+          var href_with_mobile = href_string + "&mobile=0";
+        }
+      else {
+        var href_with_mobile = href_string + "?mobile=0";
+      }
+      if (href_with_mobile) {
+        element.href = element.href.replace(href_string,href_with_mobile);
+      }
+    });
+  }
+  // setCookieMobileAndReplaceLinks end
+
+  function tempReplacePaginationLinks(){
+    var paginate_links = $(".pagination a[href*='/current_customer/store_categories/']");
+    if (paginate_links.length > 0) {
+      jQuery.each(paginate_links, function( i, element ) {
+        element.href = element.href.replace("/current_customer/store_categories/","/");
+      });      
+    }
+  }
+
+  function addItemToCompareChangeHref(){
+    var current_target = $('a.compare_url,.link_compare a, .list_item_compare a.comapre');
+    jQuery.each( current_target , function( i, element ) {
+      var compare_url = element.getAttribute('href'); // this will give only the relative href
+      if (compare_url && !(compare_url.indexOf("/add_compare") > -1)) {
+        var compare_url_new = "/add_compare" + compare_url;
+        element.setAttribute('href', compare_url_new);
+      }      
+    });
+  }
+  
+  function setCustomerData(logged_in_response){
+    var isCustomerLoggedIn = isCustomerLoginAuth(logged_in_response);
+    if (isCustomerLoggedIn) {
+      var find_customer_by_js_if_needed = findCustomerByJsIfNeeded();   // this will be true only when server not getting the cookies 
+      if (find_customer_by_js_if_needed) {
+        redirectToCurrentCustomerItemPage();
+        injectUserFilesLoggedIn(logged_in_response); // only when the server not knowing the session this is needed to add user_files content by js
+        replaceItemsPrices(logged_in_response);
+        replaceCustomerLinks(logged_in_response);
+      }
+      setSingleAccessToken(logged_in_response);
+      setCurrentCustomerFullName(logged_in_response);
+    }
+  }
+  
+  function replaceCustomerLinks(logged_in_response){
+    var link_customer = logged_in_response["link_customer"]
+    $('li.link_customer').after(link_customer);
+    $('li.link_customer').remove();
+  }
+  
+  function isCustomerLoginAuth(logged_in_response){
+    return logged_in_response['logged_in']
+  }
+  
+  function redirectToCurrentCustomerItemPage(){
+    var currentHref = window.location.href;
+    var TargetHref = currentHref.replace('/items', '/current_customer/items');
+    if (currentHref.indexOf('/items') != -1 && !(currentHref.indexOf('current_customer/items') != -1)) {
+      window.location.replace(TargetHref);
+    }
+  }
+  
+  function setSingleAccessToken(logged_in_response){
+    var single_access_token_response = logged_in_response['single_access_token'];
+    if (single_access_token_response) {
+      var meta_single_access_token = document.querySelector("meta[name='single_access_token']");
+      if (meta_single_access_token) {
+        meta_single_access_token.content = single_access_token_response;
+      }
+      var input_single_access_token = document.querySelector("input[name='single_access_token']");
+      if (input_single_access_token) {
+        input_single_access_token.value = single_access_token_response;
+      }
+    }
+  }
+  
+  function setCurrentCustomerFullName(logged_in_response){
+    var current_customer_full_name_response = logged_in_response['full_name']; 
+    if (current_customer_full_name_response) {
+      var meta_current_customer_full_name = document.querySelector("meta[name='current_customer_full_name']");
+      if (meta_current_customer_full_name) {
+        meta_current_customer_full_name.content = current_customer_full_name_response;
+      }
+    }
+  }
+  
+  function injectUserFilesLoggedIn(logged_in_response){
+    var current_customer_user_files_arr = logged_in_response['current_customer_user_files']
+    if (current_customer_user_files_arr) {
+      current_customer_user_files_arr.forEach(function(element) {
+        console.log("inject user_file_id: " + element['id']);
+        injectStyles(element['id'], element['head_html'], element['css'])
+        injectScript(element['id'], element['foot_html'], element['javascript'])
+      });
+    }
+  }
+  
+  function injectStyles(userFileId, head_html, css) {
+    if (css) {
+      var css_str = "<style>" + css + "</style>";
+    }
+    else
+    {
+      var css_str = "";
+    }
+    var div = $("<div />", {
+      html: 
+      "<!-- user_files_head_start " + userFileId + " --> " + 
+      "<!-- head_html start -->" + 
+      head_html + 
+      "<!-- css start -->" + 
+      css_str + 
+      "<!-- user_files_head_end -->"
+    }).appendTo("head");
+  }  
+  
+  function injectScript(userFileId, foot_html, javascript) {
+    if (javascript) {
+      var javascript_str = "<script type='text/javascript'>" + javascript + "</script>";
+    }
+    else
+    {
+      var javascript_str = "";
+    }
+    var div = $("<div />", {
+      html: 
+      "<!-- user_files_foot_start " + userFileId + " --> " + 
+      "<!-- javascript start -->" + 
+      javascript_str + 
+      "<!-- foot_html start -->" + 
+      foot_html + 
+      "<!-- user_files_foot_end -->"
+    }).appendTo("body");
+  }
+
+  function setCustomerDataIfLoggedIn(){
+    var current_customer_is_logged_in = is_logged_in();  // functions will run only if the customer logged in
+    if (current_customer_is_logged_in) {
+      //setCurrentCustomerLoggedInCss(current_customer_is_logged_in);
+      ajaxCustomerData();
+      replaceItemsLinks();
+    }
+  }
+  
+  function getItemIds(){
+    var item_id
+    var items_arr = [];
+    var items_div = $("div[id*='item_id_']").not("div[class*='cloudfront_js']"); // will run only on the items never run yet
+    jQuery.each( items_div, function( i, element ) {
+      item_id = getItemId(element.id);
+      items_arr.push(item_id);
+    });
+    return items_arr.join()
+  }
+  
+  function getItemId(str){
+    return str.replace("item_id_", "");
+  }
+  
+  function replaceItemsPrices(logged_in_response){
+    try {
+        jQuery.each( $('div[id*="item_id_"]').not('div[class*="cloudfront_js"]') , function( i, element ) {
+            var itemId        = getItemId(element.id);
+            if (logged_in_response["items"][itemId] != undefined) {
+                element.classList.add('cloudfront_js');
+                var originPrice   = '';
+                if (logged_in_response["items"][itemId]["origin_price"] != null) {
+                    if (logged_in_response["items"][itemId]["origin_price"].indexOf('items_show_origin_price_text') > -1) {
+                        originPrice   = logged_in_response["items"][itemId]["origin_price"].match(/[0-9.,]+\s.$/)[0]; // price + currency
+                    }
+                }
+                var price         = logged_in_response["items"][itemId]["price"]; // price + currency
+                var customerPrice = logged_in_response["items"][itemId]["customer_price"]; // price + currency
+                var contactText   = 'צור קשר';
+                var itemLink      = $(this).find('a[href*="/items/"]').first().attr('href');
+                var $price       = $(this).find('.price');
+
+                if (customerPrice && customerPrice != price) {
+                    // *** code for layout_x: g_x/c_x ***
+                    if ($(this).hasClass('box') && $price.length) {
+                        var $originPrice = $(this).find('.origin_price');
+                        var $priceGroup  = $price.parents('.groups');
+
+                        if (customerPrice.split(' ')[0] == '0' && price.split(' ')[0] != '0') { // if CUSTOMER_PRICE is 0 and PRICE is not 0 - replace prices with contact
+                            if ($originPrice.length) {
+                                $originPrice.parents('.groups').first().hide().addClass('hide_original_price');
+                            }
+                            $price.children('*').remove();
+                            $price.text(contactText);
+                            $price.addClass('center_price');
+                            $priceGroup.first().addClass('width100');
+                        }
+                        else {
+                            // replace ORIGIN_PRICE with PRICE
+                            if (price.split(' ')[0] != '0' && !$originPrice.length) { // if PRICE is not 0 (contact) and origin price doesn't exist- create the div and insert price
+                                var priceGroupNum = Number($priceGroup.attr('class').match(/group[1-4]_wrapper/)[0].split('group')[1].split('_wrapper')[0]);
+                                if (!$(this).find('.group' + (priceGroupNum-1) + '_wrapper').length) { // if the group before the price doesn't exist create it and fix the prices
+                                    $priceGroup.before('<div class="groups group' + (priceGroupNum-1) + '_wrapper col-xs-6"><div class="wrap"><a href="'+itemLink+'"><p class="origin_price">'+price+'</p></a></div></div>');
+                                    $price.removeClass('center_price');
+                                    $priceGroup.removeClass('width100');
+                                }
+                            }
+
+                            // replace PRICE with CUSTOMER_PRICE
+                            if (!$price.find('.items_show_price_text').length) {
+                                $price.text(customerPrice);
+                                $price.prepend('<span class="items_show_price_text" style="display: none;">מחיר</span>');
+                            }
+                            else {
+                                var clonedChildrenOfPrice = $price.children().clone();
+                                $price.text(customerPrice);
+                                $price.prepend(clonedChildrenOfPrice);
+                            }
+                        }
+                    }
+                    // *** code for older element (element_items_list_items) ***
+                    else if ($price.length || $(this).find('.zero_price_link').length) {
+                        var $prices       = $(this).find('.list_item_show_price');
+                        var $originPrice  = $prices.find('.item_show_origin_price');
+                        
+                        if (customerPrice.split(' ')[0] == '0' && price.split(' ')[0] != '0') { // if CUSTOMER_PRICE is 0 and PRICE is not 0 - replace prices with contact
+                            $originPrice.remove();
+                            $price.remove();
+                            if (!$prices.find('.zero_price_link').length) {
+                                $prices.append('<a class="zero_price_link" href="'+itemLink+'"></a>')
+                            }
+                            $prices.find('.zero_price_link').text(contactText);
+                        }
+                        else {
+                            if (price.split(' ')[0] != '0') { // if PRICE is not 0 (contact)
+                                // replace ORIGINAL_PRICE with PRICE
+                                if (!$originPrice.length) {
+                                    $prices.prepend('<span class="item_show_origin_price"><span class="origin_price_icon"></span><span class="origin_price_title">מחיר רגיל: </span><span class="origin_price_number">'+price+'</span></span>')
+                                }
+                                else if (!$originPrice.find('.origin_price_number').length) {
+                                    $originPrice.append('<span class="origin_price_number">'+price+'</span>');
+                                }
+                            }
+
+                            // replace PRICE with CUSTOMER_PRICE
+                            if (!$price.length) {
+                                $prices.append('<a class="price center_price" href="'+itemLink+'"><span>מחיר<br></span><strong>'+customerPrice+'</strong></a>')
+                            }
+                            else {
+                                $price.find('strong').text(customerPrice);
+                            }
+
+                            // ZERO_PRICE
+                            $prices.find('.zero_price_link').remove();
+                        }
+                    }
+                }
+                if ($(this).parents('.owl-item').length) { // if the item is in a carousel use 'blur', because 'change' creates an error
+                    $(this).blur();
+                }
+                else {
+                    $(this).change();
+                }
+            }
+        });
+    } catch(error){
+        console.log("replaceItemsPrices -> error", error);
+    }
+}
+
+
+
+
+  
+  function replaceItemsLinks(){
+    var item_links = $('a[href*="/items/"]');
+    jQuery.each( item_links, function( i, element ) {
+      if(element.href.indexOf("/current_customer/items/") == -1){
+        element.href = element.href.replace("/items/","/current_customer/items/");
+      }
+    });
+    var load_son_items = $('a[href*="load_son_items"]');
+    jQuery.each( load_son_items, function( i, element ) {
+      element.href = element.href.replace("/items/","/current_customer/items/");
+    });
+  }
+  
+  function findCustomerByJsIfNeeded(){
+    var find_customer_by_js_if_needed = document.querySelector("meta[name='find_customer_by_js_if_needed']");
+    var find_customer_by_js_if_needed_content = "false"; // init this var with false
+    if (find_customer_by_js_if_needed) {
+      var find_customer_by_js_if_needed_content = find_customer_by_js_if_needed.getAttribute("content");
+    }
+    return find_customer_by_js_if_needed_content == "true";
+  }
+  
+  function ajaxCustomerData(){
+    var userFileLayoutTitle = getUserFileLayoutTitle();
+    var itemIds = getItemIds();
+    var customersAuthPath = "/customers/auth?layout_title=" + userFileLayoutTitle + "&item_ids=" + itemIds
+    $.ajax({
+      url: customersAuthPath,
+      dataType: 'json',
+      timeout: 5000,
+      success: function( data ) { setCustomerData(data);},
+      error: function( data ) { console.log('403 - no customer data - try to logged in'); }
+      });
+  }
+  
+  function getUserFileLayoutTitle(){
+   var user_files_layout_title_meta_tag = document.getElementsByName("user_files_layout_title")[0]
+   if (user_files_layout_title_meta_tag) {
+     return user_files_layout_title_meta_tag["content"];
+   }
+  }
+
+  $(document).ajaxComplete(function(event, xhr, settings) {
+    var reg1 = /^\/[0-9]+/     ; // only in store_category page ex: /123-cat1
+    var reg2 = /page=[0-9]+/   ; // only in paginate ajax ex: page=3
+    var reg3 = /q=+/           ; // in search results
+    var reg4 = /auto_complete/ ; // exclude auto_complete ajax
+    var reg5 = /^\/tags\/+/    ; // in tag pages
+    var reg6 = /current_customer\/store_categories\/[0-9]+/;
+    if(!reg4.test(settings.url)){
+      // if not auto_complete
+      if(reg1.test(window.location.pathname) || reg3.test(window.location.href) || reg5.test(window.location.pathname) || reg6.test(window.location.pathname)){
+        // only in store_category page
+        if (reg2.test(settings.url)) {
+          // only in ajax with paginate ex: page=3
+          setCookieMobileAndReplaceLinks();
+          addItemToCompareChangeHref();
+          setCustomerDataIfLoggedIn();
+        }
+      }
+    }
+  });
+}
+
+$(document).ready(function() {
+  cloudfront('(document - ready)');
+});
+// ****** cloudfornt_js code - came from server in cloudfornt stores enabled - end ******

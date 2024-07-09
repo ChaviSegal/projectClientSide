@@ -1,0 +1,1411 @@
+//tal
+//all responsive JS
+//for zap fix the screen width
+function inIframe() {
+	try {
+		return window.self !== window.top;
+	} catch (e) {
+		return true;
+	}
+}
+if (inIframe() == true) {
+	$(window).on("orientationchange", function() {
+		console.log('orientationchanged!');
+		if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            if (window.orientation == 0) // Portrait
+            {
+            	if ($('body').css('width') != screen.width) {
+            		$('body').css('width', screen.width);
+            	}
+            } else // Landscape
+            {
+            	if ($('body').css('width') != screen.height) {
+            		$('body').css('width', screen.height);
+            	}
+            }
+        }
+    });
+	$(document).ready(function() {
+		$(window).trigger("orientationchange");
+	});
+}
+
+$(window).load(function() {
+	$('#demo i.fa.fa-search').click(function() {
+		$('#demo li.lslide.active').trigger('click');
+	});
+});
+
+jQuery("document").ready(function($) {
+
+    // layout_order - on submit click (paypal/credit/phone) sets the correct values to the hiddens
+    // from all.js
+    $(".payment_by_phone_button").click(function() {
+    	$('input.payment_by_phone_set').val(true);
+    	$('input.payment_by_paypal_set').val(false);
+    });
+
+    $(".payment_by_card_button").click(function() {
+    	$('input.payment_by_phone_set').val(false);
+    	$('input.payment_by_paypal_set').val(false);
+    });
+
+    $(".payment_by_paypal_button").click(function() {
+    	$('input.payment_by_paypal_set').val(true);
+    	$('input.payment_by_phone_set').val(false);
+    });
+
+    //get stock from API (url) by Ajax
+    if ($(".link_in_stock_table").length) {
+    	$(".link_in_stock_table").click(function() {
+    		return false;
+
+    	});
+
+    	var stock_table_flag = true;
+
+    	$(".link_in_stock_table").click(function() {
+    		var href = $(this).attr('href');
+    		if (stock_table_flag) {
+    			$.ajax({
+    				url: href,
+    				context: document.body
+    			}).done(function(data) {
+    				$(".link_in_stock_table").addClass('done');
+    				$(".link_in_stock_table").append(data);
+    				stock_table_wrap_hover();
+    				$("a.bold_link.link_in_stock_table.done").trigger('click');
+    			});
+    			stock_table_flag = false;
+    		}
+    	});
+    }
+
+    function stock_table_wrap_hover() {
+
+    	if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    		$("a.bold_link.link_in_stock_table.done").popover({
+    			html: true,
+    			trigger: 'click',
+    			placement: 'bottom',
+    			content: function() {
+    				return $('.item_in_stock_table_wrap').html();
+    			}
+    		});
+    	} else {
+    		$("a.bold_link.link_in_stock_table.done").popover({
+    			html: true,
+    			trigger: 'click',
+    			placement: 'bottom',
+    			content: function() {
+    				return $('.item_in_stock_table_wrap').html();
+    			}
+    		});
+    	}
+    	var cache = $('.link_in_stock_table').children();
+    	$('.link_in_stock_table').text('הצג מלאי').append(cache);
+
+    }
+
+    //header 
+
+    //remove the href attr from link all items and adds all items link to the ul
+    //do the same with father categories
+    function top_right_menu_father_link_fix() {
+    	$(".link_all_items > span > a").removeAttr('href');
+    	var father_link, relative_link = "/";
+        //checking if the page is creditguard
+        if ($('body[id="layout_credit_guard"]').length) {
+        	relative_link = $('a[href].navbar-brand').attr('href');
+        }
+        var all_products_title = {en: 'All Products ', he: 'לכל המוצרים'}; var parent_cat_prefix = {en: 'To All ', he: 'לכל ה'}; lang = $('html').attr('lang');
+        $('.link_all_items #header_show_prime_categories > ul.store_categories').prepend('<li class="pos_0"><a href="' + relative_link + '?items=all" id="link_all_items">'+all_products_title[lang || "he"]+'</a></li>');
+        $('.link_all_items #header_show_prime_categories > ul.store_categories > li').each(function() {
+        	if ($(this).children('ul.store_categories').length > 0) {
+        		father_link = $(this).children('a');
+        		$(this).children('ul.store_categories').prepend('<li class="pos_0"><a href="' + father_link.attr('href') + '">' + ''+parent_cat_prefix[lang || "he"]+'' + father_link.text() + '</a></li>');
+        		father_link.removeAttr('href');
+        		father_link.click(function() {
+        			$(this).siblings('ul.store_categories').toggleClass('open');
+        		});
+        	}
+        });
+    }
+    // calls this changes (only for mobile xs)
+    // 1. fixes link_all_items links and functionality
+    // 2. fixes the position of the search popup
+    if (screen.width <= 765) {
+    	top_right_menu_father_link_fix();
+        // on mobile - by clicking link all items >
+        // toggeling class open to the '.link_all_items #header_show_prime_categories'
+        $('#bg_header .link_all_items > span > a').click(function() {
+        	$(this).siblings('#header_show_prime_categories').toggleClass('open');
+        });
+        //sets the right attr for the search autocomplete box
+        //changes the search autocomplete box top value on focus
+        $('input#q').focus(function() {
+        	$('ul.ui-autocomplete.ui-menu.ui-widget.ui-widget-content.ui-corner-all').css('right', $('input#q').offset().left);
+        	$('ul.ui-autocomplete.ui-menu.ui-widget.ui-widget-content.ui-corner-all').css('top', $('input#q').offset().top + $('input#q').height())
+        });
+    }
+
+    // hiding the selects from the aftercreditguard failure page  
+    if ($('body.layout_order.logged_in div.flashError').length) {
+    	$('body.layout_order.logged_in select#order_shipping_option_id, body.layout_order.logged_in select#order_num_of_payments').hide();
+    }
+
+    // groups (filters) - wrapping all 3 elements in a div (every line)
+    if ($('.group_values').length != 0) {
+    	var divs = $('.group_values').children('');
+    	for (var i = 0; i < divs.length; i += 3) {
+    		divs.slice(i, i + 3).wrapAll("<div class='line'></div>");
+    	}
+    }
+
+    $('#category_group1').prepend($('.layout_category .category_desc'));
+    $('.category_middle_groups').addClass('row');
+    $('.layout_category .category_desc').css('visibility', 'visible');
+
+    //layout item
+
+    if ($('.layout_item').length) {
+    	$('.personal_sell_signup_left a').attr('href', $('a.link_personal_sell_signup.blue_link').attr('href'));
+    	$('div#item_features, #item_kit, #item_matching_models').wrapAll('<div class="wrap_item_features"></div>');
+    	$('#item_specifications .specifications > div').addClass('col-xs-12 col-sm-6');
+    	$('#item_specifications .specifications').addClass('row');
+    	$('#item_upgrades .checkbox-group').addClass('col-xs-12');
+    	$('#item_info .item_upgrades_with_images .checkbox').addClass('col-xs-4 col-sm-3 col-md-2 col-lg-1');
+    	$('#item_main .item_upgrades_with_images .checkbox').addClass('col-xs-4 col-sm-3');
+    	$('.item_upgrades_with_images').addClass('row');
+        // $('table.deal_items tr td').each(function(){
+        //     $(this).addClass('col-xs-3 col-sm-2 col-md-1');     
+        // });
+$('table.deal_items .deal_button').removeClass('col-md-1');
+$('table.deal_items .deal_button').addClass('col-md-2');
+
+$('#item_deal_items').addClass('row');
+        // macbubi 6.7.15 
+        // fixes the specifications cube when the specification is not "muvne"
+        if ($('.specifications > .features > ul > li').length) {
+        	$('.specifications > .features').first().removeClass('col-sm-6');
+        	$('div#item_specifications').addClass('hide-after');
+        	$('.specifications > .features > ul > li ').unwrap();
+        }
+        // macbubi 4.8.15
+        // replace the deal_item_images
+        if ($('table.deal_items img').length > 0) {
+        	var deal_item_src;
+        	$('table.deal_items img').each(function() {
+        		deal_item_src = $(this).attr('src');
+        		$(this).attr('src', deal_item_src.replace('index', 'large'));
+        	});
+        }
+
+        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        //@@@@- compare items in layout item -@@@@
+        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+        //create correct href for compare
+        //-------------------------------
+        var compare_url = "/?compare_it=" + $('#item_id').val();
+
+        //add the current href to current a
+        //---------------------------------
+        $('div#item_anchors').append('<a href="' + compare_url + '" class="compare_url">הוסף להשוואה</a>');
+
+        //if sub_title height is longer than 60px add btn and if open add class "open" 
+        var sub_title = $('#item_current_sub_title > span').height();
+        if (sub_title > 48) {
+        	$('#item_current_sub_title').after('<div class="sub_title_read_more_wrap"><a class="sub_title_read_more">קרא עוד...</a></div>');
+        	$(".sub_title_read_more").click(function() {
+        		if (sub_title > 48 && $('#item_current_sub_title').height() == 45) {
+        			$('#item_current_sub_title').addClass('open');
+        			$('#item_current_sub_title').css('max-height', sub_title + 'px');
+        			$('.sub_title_read_more').text('סגור');
+        		} else {
+        			$('#item_current_sub_title').css('max-height', '45px');
+        			$('#item_current_sub_title').removeClass('open');
+        			$('.sub_title_read_more').text('קרא עוד...');
+        		}
+        	});
+        }
+
+        //check if mobile, if mobile prepend the main title to top of #main
+        var resize_flag = true;
+        $(window).resize(function() {
+        	if (($(window).width() < 769) && resize_flag) {
+        		$('div#item_main').prepend($('#item_current_title'));
+        		resize_flag = false;
+        	}
+        	if (($(window).width() > 769) && !resize_flag) {
+        		$('.item_main_top').prepend($('#item_current_title'));
+        		resize_flag = true;
+        	}
+        });
+        $(window).trigger('resize');
+        // runs the normal lightslider unless lightSlider_more_options is TRUE (this is an element)
+        // if this element exist it runs the lightslider by it self
+        if (typeof lightSlider_more_options == 'undefined') {
+            if (typeof lightSlider_onAfterSlide_callback != 'function') {
+  lightSlider_onAfterSlide_callback = function () {};
+}
+        	$('#lightSlider').lightSlider({
+        		gallery: true,
+        		item: 1,
+        		loop: true,
+        		slideMargin: 0,
+        		thumbItem: 5,
+        		onSliderLoad: function(el) {
+        			el.lightGallery({
+        				selector: '#lightSlider .lslide'
+        			});
+        		},
+                onAfterSlide: lightSlider_onAfterSlide_callback
+        	});
+        }
+        var resize_flag = true;
+        $(window).resize(function() {
+        	if (($(window).width() < 769) && resize_flag) {
+        		$('div#item_main').prepend($('#item_current_title'));
+        		resize_flag = false;
+        	}
+        	if (($(window).width() > 769) && !resize_flag) {
+        		$('.item_main_top').prepend($('#item_current_title'));
+        		resize_flag = true;
+        	}
+        });
+
+        if ($('.video_trigger a').length) {
+        	$('.video_trigger a').click(function() {
+        		$('#demo .video_bg').trigger('click');
+        	});
+        }
+        // end lightSlider and gallery      
+
+        $('#color_items ul').addClass('row');
+        $('#color_items ul li').addClass('col-xs-4 col-sm-3 col-md-2 col-lg-1');
+        $('#item_info #item_upgrades > div').each(function() {
+        	$(this).addClass('row');
+        });
+        $('#item_info .upgrades_form_fields.info > div').each(function() {
+        	$(this).addClass('col-xs-12 col-sm-4');
+        });
+        $('div#item_info #selectsHook label').each(function() {
+        	$(this).addClass('col-xs-12 col-sm-4');
+        });
+
+        //item_also_buy
+        var number_of_items = 0;
+        var check_element = $('#matchingCarouselHook em').length;
+        if (check_element == 1 && $(window).width() < 768) {
+        	$('#matchingCarouselHook em').addClass('single_also_buy');
+        	$('#matchingCarouselHook em.single_also_buy img').each(function() {
+        		$(this).attr('src', $(this).attr('src').replace('index', 'large'));
+        	});
+        }
+        if (!(check_element < 1)) {
+
+        	if (check_element >= 4) {
+        		number_of_items = 4;
+        	}
+        	if (check_element == 3) {
+        		number_of_items = 3;
+        	}
+        	if (check_element == 2) {
+        		number_of_items = 2;
+        	}
+
+        	if (check_element == 1) {
+        		number_of_items = 1;
+        	}
+
+        	if (number_of_items > 1 || $(window).width() > 767) {
+        		$('#matchingCarouselHook > div').addClass('owl-carousel');
+        		$('#matchingCarouselHook > div em').addClass('item');
+        		$('#matchingCarouselHook > div em a img').each(function() {
+        			$(this).attr('src', $(this).attr('src').replace('index', 'large'));
+        			$(this).wrap('<div class="image_matching_wrap"></div>');
+
+        		});
+        		$('#matchingCarouselHook > div em a').each(function() {
+        			$(this).removeAttr('href');
+        			return false;
+        		});
+
+        		if (typeof dont_build_carusal == 'undefined') {
+        			$('#item_also_buy #matchingCarouselHook > div').owlCarousel({
+
+        				items: 4,
+        				responsive: {
+        					0: {
+        						items: 1
+        					},
+        					762: {
+        						items: 2
+        					},
+        					992: {
+        						items: 3
+        					},
+        					1200: {
+        						items: 4
+        					},
+        				},
+        				autoplay: true,
+        				margin: 0,
+        				dots: false,
+        				loop: true,
+        				nav: true
+        			});
+        		}
+        		$('#matchingCarouselHook > div .owl-nav').addClass('visible-xs visible-lg');
+        		$('#matchingCarouselHook > div .owl-nav .owl-next').html('<i class="fa fa-arrow-circle-o-right"></i>');
+        		$('#matchingCarouselHook > div .owl-nav .owl-prev').html('<i class="fa fa-arrow-circle-o-left"></i>');
+
+        	}
+            //remove Attr href make it not clickable
+            $('div#item_also_buy .item a').each(function() {
+            	$(this).removeAttr('href');
+            });
+            //end item_also_buy
+
+            $('.item_bottom_links').addClass('row');
+            $('.item_bottom_links > div').addClass('col-xs-6');
+        };
+    }
+
+    $('.item_bottom_links .item_anchor_go_up a').click(function() {
+    	$('html, body').animate({
+    		scrollTop: 0
+    	}, 800);
+    	return false;
+    });
+    
+    //add comma
+    $.fn.digits = function() {
+    	return this.each(function() {
+    		$(this).text($(this).text().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+    	})
+    }
+    $(".layout_item select").change(function() {
+    	$(".price_value").digits();
+    });
+    //end of layout item
+
+    //layout_order 
+    if ($('.layout_order').length) {
+    	$('div#order_show_order_form .info > span').addClass('wrap_info_label_left col-xs-12 col-sm-6');
+    	$('div#order_show_order_form .info').append($('div#order_show_order_form .info > span'));
+    	$('div#order_show_order_form .info').addClass('row');
+    	$('div#order_show_order_form .info > label').wrapAll('<div class="wrap_info_label_right col-xs-12 col-sm-6"></div>');
+    	$('div#order_show_order_form .info .wrap_info_label_right').prepend($('div#order_show_order_form .info > i'));
+    	$('#lightboxgomobile').parent().remove();
+    	$('.summery').append('<div class="cart_payment_icons_cards col-xs-12 col-sm-5 col-md-12 col-lg-5"></div>');
+    	$('.summery').append('<div class="cart_payment_icons_pci col-xs-12 col-sm-7 col-md-12 col-lg-7"></div>');
+        //contract lightBOX
+        $('#order_show_order_summery > div.summery > div.small').append('<ul id="lightGallery_contract"><li data-html="#contractDivHolder"><a>לתקנון</a></li></ul>');
+        $('#contractDivHolder p:first-child').text('תקנון');
+        $("#lightGallery_contract").lightGallery();
+        // wrapping all cart images
+        $('.layout_order table.cartTable td a img').each(function() {
+        	$(this).wrap('<div class="cartTable_wrap_img"></div>');
+        });
+    }
+    //end of layout_order   
+
+    //layout_category
+    if ($('.layout_category').length) {
+    	$('#category_group1 .element_category_filter').after($('.filterOptions'));
+    	$('.filterOptions > b a.remove_filter').each(function() {
+    		$(this).text('X');
+    	});
+
+    	$('#facebook_and_sort_category').addClass("row");
+
+        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        //@@@@@-special category on mobile-@@@@
+        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        if ($("body").hasClass("layout_category")) {
+            //main func - toggle the categories (hidden on mobile)
+            //----------------------------------------------------
+            function mobile_categories_togggle() {
+
+            	if ($(window).width() < 768 && flag_mobile_categories) {
+            		$('#category_group2').removeClass('col-xs-4');
+            		$('#category_group2').addClass('hidden');
+            		$('#category_group3').removeClass('col-xs-8');
+            		$('#category_group3').addClass('col-xs-12');
+            		$('body').prepend('<div class="wrap_categories"><div class="scroll_hidden1"><h3>סינונים</h3><span class="close_wrap_categories">X</span></div></div>');
+            		$('.wrap_categories').hide();
+            		$('.wrap_categories .scroll_hidden1').append($('.show_filters'));
+            		$('body').prepend('<div class="wrap_categories_togggle"><a><i class="fa fa-filter"></i></a></div>');
+            		$('.wrap_categories_togggle').click(function() {
+            			$('.wrap_categories').fadeIn();
+            		});
+            		$('.close_wrap_categories').click(function() {
+            			$('.wrap_categories').fadeOut();
+            		});
+            		flag_mobile_categories = false;
+            	}
+            	if ($(window).width() > 768 && !flag_mobile_categories) {
+            		$('#category_group2').removeClass('hidden');
+            		$('#category_group2').addClass('col-xs-4');
+            		$('#category_group3').removeClass('col-xs-12');
+            		$('#category_group3').addClass('col-xs-8');
+            		$('#category_group2').prepend($('.show_filters'));
+            		$('.wrap_categories').remove();
+            		$('.wrap_categories_togggle').remove();
+            		flag_mobile_categories = true;
+            	}
+            }
+
+            //flags
+            //-----
+            var flag_mobile_categories = true;
+            var mobile_categories_onload = true;
+
+            //run the main func on page load
+            //-----------------------------
+            if (mobile_categories_onload) {
+            	if (typeof mobile_categories_togggle !== 'undefined') {
+            		mobile_categories_togggle();
+            		mobile_categories_onload = false;
+            	}
+            }
+
+            //run the main func on resize window width
+            //----------------------------------------
+            $(window).resize(function() {
+            	mobile_categories_togggle();
+            });
+        }
+        //end of layout_category
+    }
+});
+
+// ========================================== script2.js ===========================================
+
+$(function() {
+	$("a.brands").click(function() {
+		if ($(".few_brands").is(":hidden")) {
+			$(".all_brands").hide();
+			$(".few_brands").show();
+		} else {
+			$(".all_brands").show();
+			$(".few_brands").hide();
+		}
+	});
+
+	$("div.hideme").hide();
+	$("a.shippings").click(function() {
+		$("div.hideme").slideToggle();
+	});
+
+	$("#techDetailsHook").click(function() {
+		$('html,body').animate({
+			scrollTop: $("#techDetailsAName").offset().top - 10
+		}, 'slow');
+	});
+
+	$("#featuresHook").click(function() {
+		$('html,body').animate({
+			scrollTop: $("#features").offset().top - 10
+		}, 'slow');
+	});
+
+	$("#dealButtonHook").click(function() {
+		$('html,body').animate({
+			scrollTop: $("#deal_items").offset().top - 10
+		}, 'slow');
+	});
+
+	$(".disable_after_push").click(function() {
+		$('.disable_after_push').bind('click', disableLink)
+		setTimeout(function() {
+			$('.disable_after_push').unbind('click', disableLink);
+		}, 7000);
+	});
+
+	function disableLink(e) {
+        // cancels the event
+        e.preventDefault();
+        return false;
+    }
+
+    $('.deal').change(function() {
+    	var current_image_class = ".image_" + $(this).val();
+    	var current_checkbox_class = ".checkbox_" + $(this).val();
+    	var opacity_value;
+    	if ($(this).is(':checked')) {
+    		opacity_value = 1;
+    		$(current_image_class).fadeIn('slow');
+    	} else {
+    		opacity_value = 0.4;
+    		$(current_image_class).fadeOut('slow');
+    	}
+
+    	$(current_checkbox_class).animate({
+    		opacity: opacity_value
+    	}, 500)
+
+    	var total_price = 0;
+
+    	var deal_items = $('input.deal:checkbox')
+
+    	deal_items.each(function() {
+    		if (this.checked) {
+    			var current_item_id = $(this).val();
+    			total_price += parseFloat(ids_and_prices[current_item_id]);
+    		}
+    	});
+
+        if($("div#item_show_price span meta").attr('content') == "USD"){
+            $("span#total_price").text('$ ' + total_price);
+        }
+        else if($("div#item_show_price span meta").attr('content')== "EUR"){
+            $("span#total_price").text('€ ' + total_price);
+        }
+        else{
+            $("span#total_price").text(total_price + ' ₪');
+        }
+
+
+    });
+
+$('.deal').change(function() {
+ if ($('input.deal:checkbox:checked').length == $('input.deal:checkbox').length) {
+  $("#deal_items_total_price_with_discount").show();
+  $("#deal_items_discount_amount").show();
+} else {
+  $("#deal_items_total_price_with_discount").hide();
+  $("#deal_items_discount_amount").hide();
+
+}
+});
+
+    // $(".payment_by_phone_button").click(function () {
+    //   $('input.payment_by_phone_set').val(true);
+    //   $('input.payment_by_paypal_set').val(false);
+    // });
+
+    // $(".payment_by_card_button").click(function () {
+    //   $('input.payment_by_phone_set').val(false);
+    //   $('input.payment_by_paypal_set').val(false);
+    // }); 
+
+    // $(".payment_by_paypal_button").click(function () {
+    //   $('input.payment_by_paypal_set').val(true);
+    //   $('input.payment_by_phone_set').val(false);
+    // });  
+
+$.fn.typewriter = function() {
+ this.each(function() {
+  var $ele = $(this),
+  str = $ele.text(),
+  progress = 0;
+  $ele.text('');
+  var timer = setInterval(function() {
+   $ele.text(str.substring(0, progress++) + (progress & 1 ? '' : ''));
+   if (progress >= str.length) clearInterval(timer);
+}, 40);
+});
+ return this;
+};
+
+$("#typewriter").typewriter();
+
+$(function() {
+    $("#big_buy_now_link, #small_buy_now_link, #middle_buy_now_link, #deal_button, #son_button").click(function(event) {
+        var langu = $('html').attr('lang');
+        var go = true;
+            // check if all selected upgrades aren't blank
+            $(".layout_item :not(em.item) > #item_upgrades .must_upgrade select option:selected").each(function() {
+                if ($(this).text() == "בחר " || !$(this).val()) {
+                    if(langu == 'he'){
+                        alert("נא למלא - " + $(this).parent().siblings('span').text());
+                        
+                    }
+                    else{
+                        var msg = $(this).parent().siblings('span').text().replace('שדרוג חובה', "Must Upgrade");
+                        alert("Please fill - " + msg);
+                    }
+                    go = false;
+                    return go;
+                }
+            });
+            if (go == false) {
+                return go;
+            }
+            // check if all checkbox upgrades aren't blank              
+            $(".layout_item :not(em.item) > #item_upgrades .upgrades_form_fields label.must_upgrade").each(function() {
+                if ($(this).parent().find("input:checkbox").length != 0 && $(this).parent().find("input").filter(':checked').length == 0) {
+                    if(langu == 'he'){
+                        alert("נא למלא - " + $(this).parent().find(".upgrade_topic_title").text());
+                    }
+                    else{
+                        var msg = $(this).parent().find(".upgrade_topic_title").text().replace('שדרוג חובה', "Must Upgrade");
+                        alert("Please fill - " + msg);
+                    }
+                    go = false;
+                    return go;
+                }
+            });
+            if (go == false) {
+                return go;
+            }
+            // check if all text upgrades aren't blank
+            $(".layout_item :not(em.item) > #item_upgrades .upgrades_form_fields label.must_upgrade").each(function() {
+                if ($(this).find("input[type=text]").length != 0 && $(this).find("input[type=text]").val().length == 0) {
+                    if(langu == 'he'){
+                      alert("נא למלא - " + $(this).parent().find(".upgrade_topic_title").text());
+                  }
+                  else{
+                     var msg = $(this).parent().find(".upgrade_topic_title").text().replace('שדרוג חובה', "Must Upgrade");
+                     alert("Please fill - " + msg);
+                 }
+                 go = false;
+                 return go;
+             }
+         });
+            if (go == false) {
+                return go;
+            }
+            // check if all textarea upgrades aren't blank
+            $(".layout_item :not(em.item) > #item_upgrades .upgrades_form_fields label.must_upgrade").each(function() {
+                if ($(this).find("textarea").length != 0 && $(this).find("textarea").val().length == 0) {
+                    if(langu == 'he'){
+                       alert("נא למלא - " + $(this).parent().find(".upgrade_topic_title").text());
+                   }
+                   else{
+                    var msg = $(this).parent().find(".upgrade_topic_title").text().replace('שדרוג חובה', "Must Upgrade");
+                    alert("Please fill - " + msg);
+                }
+                go = false;
+                return go;
+            }
+        });
+            if (go == false) {
+                return go;
+            }
+            // check if all files aren't blank
+            if ($(':not(em.item) > #item_upgrades label.must_upgrade input[type=file]').length) {
+                var pasport_input = $('.must_upgrade input[type=file]');
+                if (pasport_input.val() != '') {
+                    var valid_extensions = /(\.jpg|\.jpeg|\.gif|\.png)$/i;
+                    if (valid_extensions.test(pasport_input.val()) == false) {
+                        if(langu == 'he'){
+                            alert('ניתן לצרף קובץ מסוג תמונה בלבד, בפורמטים הבאים: jpg, jpeg, gif, png');
+                        }
+                        else{
+                            alert('Please attach only image file, in the following formats: jpg, jpeg, gif, png');
+                        }
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    msg = pasport_input.parent().parent().find(".upgrade_topic_title").text();
+                    if (msg.length == 0) {
+                        if(langu == 'he'){
+                            msg = "נא לצרף קובץ";
+                        }
+                        else{
+                            msg = "Please attach file";
+                        }
+                    }
+                    alert(msg);
+                    return false;
+                }
+            }
+            return go;
+        });
+});
+
+    // sets the hidden input true (on clicking item_also_buy)
+    $("#deal_button").click(function() {
+    	$('input.deal_button_set').val(true);
+    });
+
+    // when user go to link in header the link will become span and not link (like link_to_unless_current)
+    if (!$('body').hasClass('layout_homepage') && !$('body').hasClass('root')) {
+    	$('#layout_header a[href="' + window.location.href + '"], .element_general_all_categories  a[href="' + window.location.href + '"], .menu a[href="' + window.location.href + '"]').not(".cart").each(function() {
+    		if ($(this).attr('class')) {
+    			$(this).replaceWith("<span class='" + $(this).attr('class') + "'>" + $(this).html() + "</span>");
+    		} else {
+    			$(this).replaceWith("<span>" + $(this).html() + "</span>");
+    		}
+    	});
+
+        // (old designs) when user go to link in header the link will become span and not link (like link_to_unless_current)
+        $('.sideBar a[href="' + window.location.pathname + '"]').not(".cart").each(function() {
+        	$(this).replaceWith("<h2>" + $(this).text() + "</h2>");
+        });
+    }
+
+    // orders links
+    // the window load will cause the func to run after all other js was runing for the home page link in js
+    $(window).load(function() {
+    	if ($('body').hasClass('layout_order')) {
+            // calc num_of_cart_items and insert in link_order_with_counter
+            var num_of_cart_items = 0;
+            $("input.line_item_quantity").each(function() {
+            	num_of_cart_items += parseInt($(this).val());
+            });
+            $("span#link_order_with_counter b").text(num_of_cart_items); // new design
+            $('.menu a.cart b').text(num_of_cart_items); // old design
+            $('span.cart_with_items_counter').text(num_of_cart_items); // mobile layout
+
+            // add ?num_of_cart_items= to links
+            $('#layout_header a[href], #layout_footer a[href], .menu a[href], div.footer a[href]').each(function() {
+            	var href = $(this).attr('href');
+            	if (String(href).indexOf("?") >= 0)
+            		sign = "&";
+            	else {
+            		sign = "?";
+            	}
+            	$(this).attr("href", href + sign + "num_of_cart_items=" + num_of_cart_items);
+            });
+        }
+    });
+
+    // when user search it will put value in search box 
+    if (window.location.href.indexOf("q=") >= 0) {
+    	value = window.location.href.split("q=")[1]
+    	if (value.indexOf("&") >= 0) {
+    		value = value.split("&")[0]
+    	}
+    	$("#q").val(decodeURIComponent(value).replace(/\+/g, " "));
+    }
+
+    //   //datepicker
+    // $(function() {
+    //   $( "#datepicker_from" ).datepicker({
+    //     dateFormat: "dd/mm/yy",
+    //     defaultDate: "+1w",
+    //       showOtherMonths: true,
+    //       selectOtherMonths: true,
+    //     onClose: function( selectedDate ) {
+    //       $( "#datepicker_to" ).datepicker( "option", "minDate", selectedDate );
+    //     }
+    //   });
+    //   $( "#datepicker_to" ).datepicker({
+    //     dateFormat: "dd/mm/yy",
+    //     defaultDate: "+1w",
+    //       showOtherMonths: true,
+    //       selectOtherMonths: true,
+    //     onClose: function( selectedDate ) {
+    //       $( "#datepicker_from" ).datepicker( "option", "maxDate", selectedDate );
+    //     }
+    //   });
+    // });
+
+    // /* Hebrew initialisation for the UI Datepicker extension. */
+    // /* Written by Amir Hardon (ahardon at gmail dot com). */
+    // jQuery(function($){
+    //  $.datepicker.regional['he'] = {
+    //      closeText: 'סגור',
+    //      prevText: '&#x3c;הקודם',
+    //      nextText: 'הבא&#x3e;',
+    //      currentText: 'היום',
+    //      monthNames: ['ינואר','פברואר','מרץ','אפריל','מאי','יוני',
+    //      'יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'],
+    //      monthNamesShort: ['1','2','3','4','5','6',
+    //      '7','8','9','10','11','12'],
+    //      dayNames: ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
+    //      dayNamesShort: ['א\'','ב\'','ג\'','ד\'','ה\'','ו\'','שבת'],
+    //      dayNamesMin: ['א\'','ב\'','ג\'','ד\'','ה\'','ו\'','שבת'],
+    //      weekHeader: 'Wk',
+    //      dateFormat: 'dd/mm/yy',
+    //      firstDay: 0,
+    //      isRTL: true,
+    //      showMonthAfterYear: false,
+    //      yearSuffix: ''};
+    //  $.datepicker.setDefaults($.datepicker.regional['he']);
+    // });          
+    //  //datepicker    
+
+    // customer_club
+    $(document).ready(function() {
+    	if ($('body').hasClass("customer_club")) {
+            // puts the label name into its imput as placeholder
+            (function($) {
+            	$.fn.placeHolder = function() {
+            		var error_msg = $(this).siblings('span.error').detach().text();
+            		var name = $(this).parent().text().replace('*', '');
+            		$(this).attr('placeholder', name + " " + error_msg + ":");
+            	};
+            })(jQuery);
+
+            //new designs:
+            $('.customer_club #main input#ticket_customer_name, .customer_club #main input#ticket_customer_phone, .customer_club #main input#ticket_customer_email').each(function() {
+            	$(this).parent().css('visibility', 'hidden');
+            	$(this).placeHolder();
+            })
+            $(".customer_club #main .contact .smallButton a").text('כן! צרף אותי');
+
+            //old designs:
+            $('.customer_club .contentBGTopBorder input#ticket_customer_name, .customer_club .contentBGTopBorder input#ticket_customer_phone, .customer_club .contentBGTopBorder input#ticket_customer_email').each(function() {
+            	$(this).parent().css('visibility', 'hidden');
+            	$(this).placeHolder();
+            })
+            $(".customer_club .contentBGTopBorder .contact .smallButton a").text('כן! צרף אותי');
+
+            //on success (new & old designs)
+            if (decodeURIComponent(window.location.href).indexOf('success_msg=') > -1) {
+            	var success_notice = $(decodeURIComponent(window.location.href).split('success_msg=')).last()[0];
+            	$('.customer_club #main #show_contact_form').prepend('<div class="success_notice">' + success_notice + '</div>');
+                $('.customer_club .contentBGTopBorder').prepend('<div class="success_notice">' + success_notice + '</div>'); //old design
+                $('.customer_club div.success_notice').fadeIn().delay('7000').fadeOut();
+            }
+        }
+    });
+    // customer_club
+
+    // secure search path
+    $(function() {
+    	var window_url = window.location.href;
+    	if (window_url.indexOf("//secure.") >= 0) {
+    		$("form.search").attr("action", 'search');
+    	}
+    });
+    // secure search path
+
+    // customer login single access token fix
+    $(window).load(function (){
+        var single_access_token = $('meta[name=single_access_token]').attr("content");
+        var new_order_url       = $("#header_cart_nav .cart, #header .cart").attr("href");
+        
+        if (typeof new_order_url != 'undefined' && typeof single_access_token != 'undefined' && single_access_token != "") {
+      var new_order_url_array = new_order_url.split('/'); // http://secure.localhost:3000/orders/newport/new -> ["http:", "", "secure.localhost:3000", "orders", "newport", "new"]
+      if (new_order_url_array.length > 5) {
+        new_order_url_array = new_order_url_array.slice(0, 5); // ["http:", "", "secure.localhost:3000", "orders", "newport", "new"] -> ["http:", "", "secure.localhost:3000", "orders", "newport"]
+        new_order_url_array.push("set_customer"); // ["http:", "", "secure.localhost:3000", "orders", "newport", "set_customer"]
+        var set_customer_id_url = new_order_url_array.join("/"); // "http://secure.localhost:3000/orders/newport/set_customer"
+        
+        $('body').append('<form id="dynamic_cart_new_order"></form>');
+        $('#dynamic_cart_new_order').attr("action","" + set_customer_id_url + "").attr("method","post").append('<input type="hidden" name="single_access_token" id="single_access_token" value=' + single_access_token + '>');
+        
+      //   $("#header_cart_nav .cart, #header .cart").click(function (event) {
+      //     event.preventDefault();
+      //     $("#dynamic_cart_new_order").submit();
+      // });
+    }
+}
+});
+  // customer login single access token fix
+});
+
+// ========================================== end script2.js ===========================================
+
+
+// ========================================== all.js ===========================================
+
+//@@@@@
+//code from all.js - fix the auto changing price from the select
+//@@@@@
+
+// $('.smallButton a').each(function(){
+//      $(this).click(function() {
+//           $('#new_ticket').submit();
+//           $('#new_order').submit();
+//           $('#new_customer_session').submit();
+//           $('#new_customer').submit();
+//       });
+//   });
+//   $('#big_buy_now_link').click(function() {
+//       $('#new_order').submit();
+//   });
+
+//$('#new_order').attr('onsubmit', '');
+
+
+// (function($){var tmp,loading,overlay,wrap,outer,inner,close,nav_left,nav_right,selectedIndex=0,selectedOpts={},selectedArray=[],currentIndex=0,currentOpts={},currentArray=[],ajaxLoader=null,imgPreloader=new Image(),imgRegExp=/\.(jpg|gif|png|bmp|jpeg)(.*)?$/i,swfRegExp=/[^\.]\.(swf)\s*$/i,loadingTimer,loadingFrame=1,start_pos,final_pos,busy=false,shadow=20,fx=$.extend($('<div/>')[0],{prop:0}),titleh=0,isIE6=!$.support.opacity&&!window.XMLHttpRequest,fancybox_abort=function(){loading.hide();imgPreloader.onerror=imgPreloader.onload=null;if(ajaxLoader){ajaxLoader.abort()}tmp.empty()},fancybox_error=function(){$.fancybox('<p id="fancybox_error">The requested content cannot be loaded.<br />Please try again later.</p>',{'scrolling':'no','padding':20,'transitionIn':'none','transitionOut':'none'})},fancybox_get_viewport=function(){return[$(window).width(),$(window).height(),$(document).scrollLeft(),$(document).scrollTop()]},fancybox_get_zoom_to=function(){var view=fancybox_get_viewport(),to={},margin=currentOpts.margin,resize=currentOpts.autoScale,horizontal_space=(shadow+margin)*2,vertical_space=(shadow+margin)*2,double_padding=(currentOpts.padding*2),ratio;if(currentOpts.width.toString().indexOf('%')>-1){to.width=((view[0]*parseFloat(currentOpts.width))/100)-(shadow*2);resize=false}else{to.width=currentOpts.width+double_padding}if(currentOpts.height.toString().indexOf('%')>-1){to.height=((view[1]*parseFloat(currentOpts.height))/100)-(shadow*2);resize=false}else{to.height=currentOpts.height+double_padding}if(resize&&(to.width>(view[0]-horizontal_space)||to.height>(view[1]-vertical_space))){if(selectedOpts.type=='image'||selectedOpts.type=='swf'){horizontal_space+=double_padding;vertical_space+=double_padding;ratio=Math.min(Math.min(view[0]-horizontal_space,currentOpts.width)/currentOpts.width,Math.min(view[1]-vertical_space,currentOpts.height)/currentOpts.height);to.width=Math.round(ratio*(to.width-double_padding))+double_padding;to.height=Math.round(ratio*(to.height-double_padding))+double_padding}else{to.width=Math.min(to.width,(view[0]-horizontal_space));to.height=Math.min(to.height,(view[1]-vertical_space))}}to.top=view[3]+((view[1]-(to.height+(shadow*2)))*0.5);to.left=view[2]+((view[0]-(to.width+(shadow*2)))*0.5);if(currentOpts.autoScale===false){to.top=Math.max(view[3]+margin,to.top);to.left=Math.max(view[2]+margin,to.left)}return to},fancybox_format_title=function(title){if(title&&title.length){switch(currentOpts.titlePosition){case'inside':return title;case'over':return'<span id="fancybox-title-over">'+title+'</span>';default:return currentIndex+1+' / '+currentArray.length}}return false},fancybox_process_title=function(){var title=currentOpts.title,width=final_pos.width-(currentOpts.padding*2),titlec='fancybox-title-'+currentOpts.titlePosition;$('#fancybox-title').remove();titleh=0;if(currentOpts.titleShow===false){return}title=$.isFunction(currentOpts.titleFormat)?currentOpts.titleFormat(title,currentArray,currentIndex,currentOpts):fancybox_format_title(title);$('#imageNumber').remove();$('<div id="imageNumber" />').html(title).appendTo('#fancybox-wrap');switch(currentOpts.titlePosition){case'inside':titleh=$("#fancybox-title").outerHeight(true)-currentOpts.padding;final_pos.height+=titleh;break;case'over':$('#fancybox-title').css('bottom',currentOpts.padding);break;default:$('#fancybox-title').css('bottom',$("#fancybox-title").outerHeight(true)*-1);break}$('#fancybox-title').appendTo(outer).hide()},fancybox_set_navigation=function(){$(document).unbind('keydown.fb').bind('keydown.fb',function(e){if(e.keyCode==27&&currentOpts.enableEscapeButton){e.preventDefault();$.fancybox.close()}else if(e.keyCode==37){e.preventDefault();$.fancybox.prev()}else if(e.keyCode==39){e.preventDefault();$.fancybox.next()}});if($.fn.mousewheel){wrap.unbind('mousewheel.fb');if(currentArray.length>1){wrap.bind('mousewheel.fb',function(e,delta){e.preventDefault();if(busy||delta===0){return}if(delta>0){$.fancybox.prev()}else{$.fancybox.next()}})}}if(!currentOpts.showNavArrows){return}if((currentOpts.cyclic&&currentArray.length>1)||currentIndex!==0){nav_left.show()}if((currentOpts.cyclic&&currentArray.length>1)||currentIndex!=(currentArray.length-1)){nav_right.show()}},fancybox_preload_images=function(){var href,objNext;if((currentArray.length-1)>currentIndex){href=currentArray[currentIndex+1].href;if(typeof href!=='undefined'&&href.match(imgRegExp)){objNext=new Image();objNext.src=href}}if(currentIndex>0){href=currentArray[currentIndex-1].href;if(typeof href!=='undefined'&&href.match(imgRegExp)){objNext=new Image();objNext.src=href}}},_finish=function(){inner.css('overflow',(currentOpts.scrolling=='auto'?(currentOpts.type=='image'||currentOpts.type=='iframe'||currentOpts.type=='swf'?'hidden':'auto'):(currentOpts.scrolling=='yes'?'auto':'visible')));if(!$.support.opacity){inner.get(0).style.removeAttribute('filter');wrap.get(0).style.removeAttribute('filter')}$('#fancybox-title').show();if(currentOpts.hideOnContentClick){inner.one('click',$.fancybox.close)}if(currentOpts.hideOnOverlayClick){overlay.one('click',$.fancybox.close)}if(currentOpts.showCloseButton){close.show()}fancybox_set_navigation();$(window).bind("resize.fb",$.fancybox.center);if(currentOpts.centerOnScroll){$(window).bind("scroll.fb",$.fancybox.center)}else{$(window).unbind("scroll.fb")}if($.isFunction(currentOpts.onComplete)){currentOpts.onComplete(currentArray,currentIndex,currentOpts)}busy=false;fancybox_preload_images()},fancybox_draw=function(pos){var width=Math.round(start_pos.width+(final_pos.width-start_pos.width)*pos),height=Math.round(start_pos.height+(final_pos.height-start_pos.height)*pos),top=Math.round(start_pos.top+(final_pos.top-start_pos.top)*pos),left=Math.round(start_pos.left+(final_pos.left-start_pos.left)*pos);wrap.css({'width':width+'px','height':height+'px','top':top+'px','left':left+'px'});width=Math.max(width-currentOpts.padding*2,0);height=Math.max(height-(currentOpts.padding*2+(titleh*pos)),0);inner.css({'width':width+'px','height':height+'px'});if(typeof final_pos.opacity!=='undefined'){wrap.css('opacity',(pos<0.5?0.5:pos))}},fancybox_get_obj_pos=function(obj){var pos=obj.offset();pos.top+=parseFloat(obj.css('paddingTop'))||0;pos.left+=parseFloat(obj.css('paddingLeft'))||0;pos.top+=parseFloat(obj.css('border-top-width'))||0;pos.left+=parseFloat(obj.css('border-left-width'))||0;pos.width=obj.width();pos.height=obj.height();return pos},fancybox_get_zoom_from=function(){var orig=selectedOpts.orig?$(selectedOpts.orig):false,from={},pos,view;if(orig&&orig.length){pos=fancybox_get_obj_pos(orig);from={width:(pos.width+(currentOpts.padding*2)),height:(pos.height+(currentOpts.padding*2)),top:(pos.top-currentOpts.padding-shadow),left:(pos.left-currentOpts.padding-shadow)}}else{view=fancybox_get_viewport();from={width:1,height:1,top:view[3]+view[1]*0.5,left:view[2]+view[0]*0.5}}return from},fancybox_show=function(){loading.hide();if(wrap.is(":visible")&&$.isFunction(currentOpts.onCleanup)){if(currentOpts.onCleanup(currentArray,currentIndex,currentOpts)===false){$.event.trigger('fancybox-cancel');busy=false;return}}currentArray=selectedArray;currentIndex=selectedIndex;currentOpts=selectedOpts;inner.get(0).scrollTop=0;inner.get(0).scrollLeft=0;if(currentOpts.overlayShow){if(isIE6){$('select:not(#fancybox-tmp select)').filter(function(){return this.style.visibility!=='hidden'}).css({'visibility':'hidden'}).one('fancybox-cleanup',function(){this.style.visibility='inherit'})}overlay.css({'background-color':currentOpts.overlayColor,'opacity':currentOpts.overlayOpacity}).unbind().show()}final_pos=fancybox_get_zoom_to();fancybox_process_title();if(wrap.is(":visible")){$(close.add(nav_left).add(nav_right)).hide();var pos=wrap.position(),equal;start_pos={top:pos.top,left:pos.left,width:wrap.width(),height:wrap.height()};equal=(start_pos.width==final_pos.width&&start_pos.height==final_pos.height);inner.fadeOut(currentOpts.changeFade,function(){var finish_resizing=function(){inner.html(tmp.contents()).fadeIn(currentOpts.changeFade,_finish)};$.event.trigger('fancybox-change');inner.empty().css('overflow','hidden');if(equal){inner.css({top:currentOpts.padding,left:currentOpts.padding,width:Math.max(final_pos.width-(currentOpts.padding*2),1),height:Math.max(final_pos.height-(currentOpts.padding*2)-titleh,1)});finish_resizing()}else{inner.css({top:currentOpts.padding,left:currentOpts.padding,width:Math.max(start_pos.width-(currentOpts.padding*2),1),height:Math.max(start_pos.height-(currentOpts.padding*2),1)});fx.prop=0;$(fx).animate({prop:1},{duration:currentOpts.changeSpeed,easing:currentOpts.easingChange,step:fancybox_draw,complete:finish_resizing})}});return}wrap.css('opacity',1);if(currentOpts.transitionIn=='elastic'){start_pos=fancybox_get_zoom_from();inner.css({top:currentOpts.padding,left:currentOpts.padding,width:Math.max(start_pos.width-(currentOpts.padding*2),1),height:Math.max(start_pos.height-(currentOpts.padding*2),1)}).html(tmp.contents());wrap.css(start_pos).show();if(currentOpts.opacity){final_pos.opacity=0}fx.prop=0;$(fx).animate({prop:1},{duration:currentOpts.speedIn,easing:currentOpts.easingIn,step:fancybox_draw,complete:_finish})}else{inner.css({top:currentOpts.padding,left:currentOpts.padding,width:Math.max(final_pos.width-(currentOpts.padding*2),1),height:Math.max(final_pos.height-(currentOpts.padding*2)-titleh,1)}).html(tmp.contents());wrap.css(final_pos).fadeIn(currentOpts.transitionIn=='none'?0:currentOpts.speedIn,_finish)}},fancybox_process_inline=function(){if(selectedOpts.width=='auto'){selectedOpts.width=tmp.width()}if(selectedOpts.height=='auto'){selectedOpts.height=tmp.height()}fancybox_show()},fancybox_process_image=function(){busy=true;var div=$('<div id="img"></div>');var img=$("<img />").attr({'id':'fancybox-img','src':imgPreloader.src,'alt':selectedOpts.title});img.appendTo(div);div.appendTo(tmp);if(imgPreloader.width>500){$('#fancybox-img').width(500);$('#fancybox-img').height('auto')}else{$('#fancybox-img').width('auto');if(imgPreloader.height>500){$('#fancybox-img').height(500)}}if(badBrowser){$('#fancybox-img').css({display:'none'}).vAlign()}fancybox_show()},fancybox_start=function(){fancybox_abort();var obj=selectedArray[selectedIndex],href,type,title,str,emb,selector,data;selectedOpts=$.extend({},$.fn.fancybox.defaults,(typeof $(obj).data('fancybox')=='undefined'?selectedOpts:$(obj).data('fancybox')));title=obj.title||$(obj).title||selectedOpts.title||'';if(obj.nodeName&&!selectedOpts.orig){selectedOpts.orig=$(obj).children("img:first").length?$(obj).children("img:first"):$(obj)}if(title===''&&selectedOpts.orig){title=selectedOpts.orig.attr('alt')}if(obj.nodeName&&(/^(?:javascript|#)/i).test(obj.href)){href=selectedOpts.href||null}else{href=selectedOpts.href||obj.href||null}if(selectedOpts.type){type=selectedOpts.type;if(!href){href=selectedOpts.content}}else if(selectedOpts.content){type='html'}else if(href){if(href.match(imgRegExp)){type='image'}else if(href.match(swfRegExp)){type='swf'}else if($(obj).hasClass("iframe")){type='iframe'}else if(href.match(/#/)){obj=href.substr(href.indexOf("#"));type=$(obj).length>0?'inline':'ajax'}else{type='ajax'}}else{type='inline'}selectedOpts.type=type;selectedOpts.href=href;selectedOpts.title=title;if(selectedOpts.autoDimensions&&selectedOpts.type!=='iframe'&&selectedOpts.type!=='swf'){selectedOpts.width='auto';selectedOpts.height='auto'}if(selectedOpts.modal){selectedOpts.overlayShow=true;selectedOpts.hideOnOverlayClick=false;selectedOpts.hideOnContentClick=false;selectedOpts.enableEscapeButton=false;selectedOpts.showCloseButton=false}if($.isFunction(selectedOpts.onStart)){if(selectedOpts.onStart(selectedArray,selectedIndex,selectedOpts)===false){busy=false;return}}tmp.css('padding',(shadow+selectedOpts.padding+selectedOpts.margin));$('.fancybox-inline-tmp').unbind('fancybox-cancel').bind('fancybox-change',function(){$(this).replaceWith(inner.children())});switch(type){case'html':tmp.html(selectedOpts.content);fancybox_process_inline();break;case'inline':$('<div class="fancybox-inline-tmp" />').hide().insertBefore($(obj)).bind('fancybox-cleanup',function(){$(this).replaceWith(inner.children())}).bind('fancybox-cancel',function(){$(this).replaceWith(tmp.children())});$(obj).appendTo(tmp);fancybox_process_inline();break;case'image':busy=false;$.fancybox.showActivity();imgPreloader=new Image();imgPreloader.onerror=function(){fancybox_error()};imgPreloader.onload=function(){imgPreloader.onerror=null;imgPreloader.onload=null;fancybox_process_image();if($('#fancybox-img').outerWidth(false)>500){$('#fancybox-img').width(500);$('#fancybox-img').height('auto')}};imgPreloader.src=href;break;case'swf':str='<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="'+selectedOpts.width+'" height="'+selectedOpts.height+'"><param name="movie" value="'+href+'"></param>';emb='';$.each(selectedOpts.swf,function(name,val){str+='<param name="'+name+'" value="'+val+'"></param>';emb+=' '+name+'="'+val+'"'});str+='<embed src="'+href+'" type="application/x-shockwave-flash" width="'+selectedOpts.width+'" height="'+selectedOpts.height+'"'+emb+'></embed></object>';tmp.html(str);fancybox_process_inline();break;case'div':fancybox_show();break;case'ajax':selector=href.split('#',2);data=selectedOpts.ajax.data||{};if(selector.length>1){href=selector[0];if(typeof data=="string"){data+='&selector='+selector[1]}else{data.selector=selector[1]}}busy=false;$.fancybox.showActivity();ajaxLoader=$.ajax($.extend(selectedOpts.ajax,{url:href,data:data,error:fancybox_error,success:function(data,textStatus,XMLHttpRequest){if(ajaxLoader.status==200){tmp.html(data);fancybox_process_inline()}}}));break;case'iframe':$('<iframe id="fancybox-frame" name="fancybox-frame'+new Date().getTime()+'" frameborder="0" hspace="0" scrolling="'+selectedOpts.scrolling+'" src="'+selectedOpts.href+'"></iframe>').appendTo(tmp);fancybox_show();break}},fancybox_animate_loading=function(){if(!loading.is(':visible')){clearInterval(loadingTimer);return}$('div',loading).css('top',(loadingFrame*-40)+'px');loadingFrame=(loadingFrame+1)%12},fancybox_init=function(){if($("#fancybox-wrap").length){return}$('body').append(tmp=$('<div id="fancybox-tmp"></div>'),loading=$('<div id="fancybox-loading"><div></div></div>'),overlay=$('<div id="fancybox-overlay"></div>'),wrap=$('<div id="fancybox-wrap"></div>'));if(!$.support.opacity){wrap.addClass('fancybox-ie');loading.addClass('fancybox-ie')}outer=$('<div id="fancybox-outer"></div>').append('<div class="fancy-bg" id="fancy-bg-n"></div><div class="fancy-bg" id="fancy-bg-ne"></div><div class="fancy-bg" id="fancy-bg-e"></div><div class="fancy-bg" id="fancy-bg-se"></div><div class="fancy-bg" id="fancy-bg-s"></div><div class="fancy-bg" id="fancy-bg-sw"></div><div class="fancy-bg" id="fancy-bg-w"></div><div class="fancy-bg" id="fancy-bg-nw"></div>').appendTo(wrap);outer.append(inner=$('<div id="fancybox-inner"></div>'),close=$('<a id="fancybox-close"></a>'),nav_left=$('<a href="javascript:;" id="fancybox-left"><span class="fancy-ico" id="fancybox-left-ico"></span></a>'),nav_right=$('<a href="javascript:;" id="fancybox-right"><span class="fancy-ico" id="fancybox-right-ico"></span></a>'));close.click($.fancybox.close);loading.click($.fancybox.cancel);nav_left.click(function(e){e.preventDefault();$.fancybox.prev()});nav_right.click(function(e){e.preventDefault();$.fancybox.next()});if(isIE6){overlay.get(0).style.setExpression('height',"document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px'");loading.get(0).style.setExpression('top',"(-20 + (document.documentElement.clientHeight ? document.documentElement.clientHeight/2 : document.body.clientHeight/2 ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop )) + 'px'");outer.prepend('<iframe id="fancybox-hide-sel-frame" src="javascript:\'\';" scrolling="no" frameborder="0" ></iframe>')}};$.fn.fancybox=function(options){$(this).data('fancybox',$.extend({},options,($.metadata?$(this).metadata():{}))).unbind('click.fb').bind('click.fb',function(e){e.preventDefault();if(busy){return}busy=true;$(this).blur();selectedArray=[];selectedIndex=0;var rel=$(this).attr('rel')||'';if(!rel||rel==''||rel==='nofollow'){selectedArray.push(this)}else{selectedArray=$("a[rel="+rel+"], area[rel="+rel+"]");selectedIndex=selectedArray.index(this)}fancybox_start();return false});return this};$.fancybox=function(obj){if(busy){return}busy=true;var opts=typeof arguments[1]!=='undefined'?arguments[1]:{};selectedArray=[];selectedIndex=opts.index||0;if($.isArray(obj)){for(var i=0,j=obj.length;i<j;i++){if(typeof obj[i]=='object'){$(obj[i]).data('fancybox',$.extend({},opts,obj[i]))}else{obj[i]=$({}).data('fancybox',$.extend({content:obj[i]},opts))}}selectedArray=jQuery.merge(selectedArray,obj)}else{if(typeof obj=='object'){$(obj).data('fancybox',$.extend({},opts,obj))}else{obj=$({}).data('fancybox',$.extend({content:obj},opts))}selectedArray.push(obj)}if(selectedIndex>selectedArray.length||selectedIndex<0){selectedIndex=0}fancybox_start()};$.fancybox.showActivity=function(){clearInterval(loadingTimer);loading.show();loadingTimer=setInterval(fancybox_animate_loading,66)};$.fancybox.hideActivity=function(){loading.hide()};$.fancybox.next=function(){return $.fancybox.pos(currentIndex+1)};$.fancybox.prev=function(){return $.fancybox.pos(currentIndex-1)};$.fancybox.pos=function(pos){if(busy){return}pos=parseInt(pos,10);if(pos>-1&&currentArray.length>pos){selectedIndex=pos;fancybox_start()}if(currentOpts.cyclic&&currentArray.length>1&&pos<0){selectedIndex=currentArray.length-1;fancybox_start()}if(currentOpts.cyclic&&currentArray.length>1&&pos>=currentArray.length){selectedIndex=0;fancybox_start()}return};$.fancybox.cancel=function(){if(busy){return}busy=true;$.event.trigger('fancybox-cancel');fancybox_abort();if(selectedOpts&&$.isFunction(selectedOpts.onCancel)){selectedOpts.onCancel(selectedArray,selectedIndex,selectedOpts)}busy=false};$.fancybox.close=function(){if(busy||wrap.is(':hidden')){return}busy=true;if(currentOpts&&$.isFunction(currentOpts.onCleanup)){if(currentOpts.onCleanup(currentArray,currentIndex,currentOpts)===false){busy=false;return}}fancybox_abort();$(close.add(nav_left).add(nav_right)).hide();$('#fancybox-title').remove();wrap.add(inner).add(overlay).unbind();$(window).unbind("resize.fb scroll.fb");$(document).unbind('keydown.fb');function _cleanup(){overlay.fadeOut('fast');wrap.hide();$.event.trigger('fancybox-cleanup');inner.empty();if($.isFunction(currentOpts.onClosed)){currentOpts.onClosed(currentArray,currentIndex,currentOpts)}currentArray=selectedOpts=[];currentIndex=selectedIndex=0;currentOpts=selectedOpts={};busy=false}inner.css('overflow','hidden');if(currentOpts.transitionOut=='elastic'){start_pos=fancybox_get_zoom_from();var pos=wrap.position();final_pos={top:pos.top,left:pos.left,width:wrap.width(),height:wrap.height()};if(currentOpts.opacity){final_pos.opacity=1}fx.prop=1;$(fx).animate({prop:0},{duration:currentOpts.speedOut,easing:currentOpts.easingOut,step:fancybox_draw,complete:_cleanup})}else{wrap.fadeOut(currentOpts.transitionOut=='none'?0:currentOpts.speedOut,_cleanup)}};$.fancybox.resize=function(){var c,h;if(busy||wrap.is(':hidden')){return}busy=true;c=inner.wrapInner("<div style='overflow:auto'></div>").children();h=c.height();wrap.css({height:h+(currentOpts.padding*2)+titleh});inner.css({height:h});c.replaceWith(c.children());$.fancybox.center()};$.fancybox.center=function(){busy=true;var view=fancybox_get_viewport(),margin=currentOpts.margin,to={};to.top=view[3]+((view[1]-((wrap.height()-titleh)+(shadow*2)))*0.5);to.left=view[2]+((view[0]-(wrap.width()+(shadow*2)))*0.5);to.top=Math.max(view[3]+margin,to.top);to.left=Math.max(view[2]+margin,to.left);wrap.css(to);busy=false};$.fn.fancybox.defaults={padding:10,margin:20,opacity:false,modal:false,cyclic:false,scrolling:'auto',width:500,height:900,autoScale:true,autoDimensions:true,centerOnScroll:false,ajax:{},swf:{wmode:'transparent'},hideOnOverlayClick:true,hideOnContentClick:false,overlayShow:true,overlayOpacity:0.3,overlayColor:'#666',titleShow:false,titlePosition:'outside',titleFormat:null,transitionIn:'fade',transitionOut:'fade',speedIn:300,speedOut:300,changeSpeed:300,changeFade:'fast',easingIn:'swing',easingOut:'swing',showCloseButton:true,showNavArrows:true,enableEscapeButton:true,onStart:null,onCancel:null,onComplete:null,onCleanup:null,onClosed:null};$(document).ready(function(){fancybox_init()})})(jQuery);
+(function(a) {
+	a.log = function() {
+		if (window.console && window.console.log) {
+			console.log.apply(window.console, arguments)
+		}
+	};
+	a.fn.log = function() {
+		a.log(this);
+		return this
+	}
+})(jQuery);
+
+var mode = document.documentMode || 0;
+var changeDependencyByVal = null;
+
+function selectDependency(changeByVal) {
+	changeDependencyByVal = changeByVal;
+	for (var selName in changeDependencyByVal) {
+		var selOptions = changeDependencyByVal[selName];
+		for (var first in selOptions.options) {
+			UpdateSelect($('select[name="' + selOptions.target + '"]'), selOptions.options[first], selOptions.selected);
+			break;
+		}
+	}
+}
+
+function selectChanged(select) {
+	var selectedItem = select.find('option:selected');
+	var val = selectedItem.val();
+	for (var selName in changeDependencyByVal) {
+		if (select.get(0).name == selName) {
+			var selOptions = changeDependencyByVal[selName];
+			for (var i in selOptions.options)
+				if (i == val) {
+					UpdateSelect($('select[name="' + selOptions.target + '"]'), selOptions.options[i], selOptions.selected);
+					selectChanged($('select[name="' + selOptions.target + '"]'));
+					return;
+				}
+			}
+		}
+		if (typeof localSelectChanged == 'function')
+			localSelectChanged();
+	}
+
+	function UpdateSelect(extraWarranty, options, selected) {
+		var optionsStr = '';
+		for (var val in options) {
+			var selectedStr = (val == selected) ? ' selected="selected"' : '';
+			optionsStr += '<option value="' + val + '"' + selectedStr + '>' + options[val] + '</option>';
+		}
+		extraWarranty.html(optionsStr);
+		CreateCustomSelect(extraWarranty, false);
+	}
+
+function CreateCustomSelect($thisSelect, isInit, creditFlag) // loop-local select
+{
+    var activeOptionID = $thisSelect.children('option:selected').prevAll().length; // selected ID
+    var activeOptionText = $thisSelect.children('option:selected').text(); // selected active text
+    var $customSelect = $('<a/>').append('<big/>').append('<b/>').prepend('<em/>').children('em').html(activeOptionText).end(); // Wrap custom nodes in a jQuery object (<--this <a> is a wrapper)
+    // <A> = custom select , <BIG> = arrow , <EM> = active/chosen text wrapper , <B> = options wrapper , <I> = option
+
+    if (creditFlag) {
+    	$customSelect.append('<span/>');
+    } // if this is the credit page
+
+    for (var j = 0; j < $thisSelect.children('option').length; j++) {
+        $customSelect.children('b').append('<i>' + $thisSelect.children('option').eq(j).html() + '</i>'); // re-create the options
+    }
+    $customSelect.find('i').eq(activeOptionID).addClass('active'); // add active class to active option
+    $thisSelect.next('a.select').data('mouseover', false).html($customSelect.html()); // insert the ready custom select into the DOM
+    if (!isInit) { // if this isn't the special credit-page: set dynamic widths
+    	$selectHooks = $('#selectsHook, #creditSelectsHook');
+    $selectHooks.find('em, b, i').removeAttr('style').css({
+    	width: $selectHooks.data().widestSelect
+    });
+}
+}
+
+$(function() {
+
+    //if($('div.productBoxes').length >= 1){ 
+    //  $('div.productBoxes a.productPic').vAlign().css({display:'block'});
+    //}
+
+    $('div.menu, form.search, div.sideBar, div.ca-container').css({
+    	visibility: 'visible'
+    });
+
+    function customSelectFunc(e) { // Custom Select v1.0 //
+    	var $thisSelect = $(this),
+    	$allSelects = $('select'),
+    	$allCustomSelects = $allSelects.next('a.select'),
+    	closeTimer = '',
+            sender = (e && e.target) || (window.event && window.event.srcElement), // setup event delegation by creating the special "$sender" variable. make it cross-browser.
+            $sender = $(sender),
+            $selectHooks = $('#selectsHook, #creditSelectsHook'),
+            $creditSelects = $('#creditSelectsHook'),
+            $contentBG = $('form.contentBG'),
+            $footer = $(document.body).children('div.footer'),
+            creditFlag = ($creditSelects.length === 1); // set special var
+
+        // Utility function: hide custom select
+        function closeCustomSelectFunc() { //$.log($thisSelect);
+            $('html').unbind('click', closeCustomSelectFunc); // clean HTML
+            $thisSelect
+                .removeAttr('id') // clear ID
+                .parent().css({
+                	zIndex: 0
+                }).end() // clear Z from parent
+                .children('b').stop(true, true).animate({
+                	height: 0,
+                	opacity: 0
+                }, function() { // main hide animation
+                    $(this).add($thisSelect).add($footer).removeAttr('style').removeClass('active'); // clean
+                });
+            }
+
+        if (this === window && $selectHooks.length === 1) { // if init
+            for (var i = 0; i < $allSelects.length; i++) { // loop over all selects on page
+                CreateCustomSelect($allSelects.eq(i), true, creditFlag); // loop-local select
+            }
+
+            if ($allCustomSelects.eq(0).length === 1) {
+            	$contentBG.css({
+            		overflow: 'visible'
+            	});
+            } // if there's at least 1 custom select on page, enable the select to "flow" bellow the bottom border
+
+            if (!creditFlag) { // if this isn't the special credit-page: set dynamic widths
+            	$selectHooks.find('b, i').css({
+            		float: 'left',
+            		display: 'block',
+            		position: 'relative',
+            		clear: 'both'
+            	});
+
+                $selectHooks // set widest width to select
+                    .data('widestSelect', $selectHooks.find('i').widest().width()) // save
+                    .find('em, b, i').removeAttr('style').css({
+                    	width: $selectHooks.data().widestSelect
+                    }).end() // clean + set width to inner elements
+                    .find('a.select').css({
+                    	width: $selectHooks.find('em:eq(0)').outerWidth(true)
+                    }).end() // set wider width to each select
+                    .children('label').css({
+                    	width: $selectHooks.children('label').widest().outerWidth(true),
+                    	display: 'block'
+                    });
+
+                    $selectHooks.data('labelWidth', $selectHooks.find('span.title').widest().width()).find('span.title').css({
+                    	width: $selectHooks.data().labelWidth
+                }); // set same-width to all custom-labels <span.title>
+                } else {
+                $creditSelects.data('widestSelect', 230); // save constant width for later
+            }
+
+            $selectHooks.css({
+            	visibility: 'visible'
+            }); // show all selects when done init customization
+
+            // bind this function as the handler for all the selects on the page + support 3 events
+            $allCustomSelects.bind('click mouseover mouseout', customSelectFunc);
+        }
+
+        if (e) e.preventDefault(); // prevent the <a> tag from default behaviour when clicked
+
+        //if the custom select <a> was clicked
+        if ($sender.parent().hasClass('select') && $sender.get(0).tagName != 'B' && e != undefined && e.type === 'click') { // $.log(e.type); $.log($sender); $.log($thisSelect);
+            e.stopPropagation(); // don't let this click bubble up the DOM tree and triggering my bound click
+
+            if (!$thisSelect.hasClass('active')) { // show on click
+            	if ($('#thisSelect').length === 1) {
+            		$('#thisSelect').children('em').click();
+                } // if this select was clicked while another select was open - close that other select
+
+                $thisSelect
+                .addClass('active')
+                    .attr('id', 'thisSelect') // allow outside click to get this select: make it unique
+                    .parent().css({
+                    	zIndex: 2
+                    }).end() // show current select over others
+                    .data('height', $thisSelect.children('b').height()) // save current height
+                    .data('width', $thisSelect.width() - 4) // save current width
+                    .children('b') // options-wrapper
+                    .stop(true, true).css({
+                    	display: 'block',
+                    	height: 0,
+                    	opacity: 0,
+                    	width: $thisSelect.data().width
+                    }) // prepare to animate + set special width
+                    .animate({
+                    	height: $thisSelect.data().height,
+                    	opacity: 1
+                    }) // animate: show
+                    .children('i').css({
+                    	width: $selectHooks.data().widestSelect + 15
+                    }); // set same-width selects
+
+                    $footer.css({
+                    	zIndex: -1
+                    });
+                    if (creditFlag) {
+                    	$thisSelect.find('i').removeAttr('style')
+                    }
+
+                $('html').bind('click', closeCustomSelectFunc); // bind a click to the body that triggers a click on the custom select to close it. Only active if the mouse is not over the custom select
+            } else { // close the custom select if it was clicked twice
+            	closeCustomSelectFunc();
+            }
+        }
+
+        //if the custom option <I> was clicked 
+        if ($sender.length && $sender.get(0).tagName === 'I' && e != undefined && e.type === 'click') { // notice: using only "if .get(0)" without the .length check = return an error.
+            e.stopPropagation(); // don't let this click bubble up the DOM tree
+        $thisSelect
+                .prev('select').attr('selectedIndex', $sender.prevAll().length).end() // set the new :selected on the native select
+                .children('em').html($sender.html()); // copy-paste the text that's inside this option <I> into the main-text holder <EM>
+                selectChanged($thisSelect.prev('select'));
+            closeCustomSelectFunc(); // after a custom option was chosen, run the close function
+        }
+
+        //if mouseover A.select
+        if ($sender.length && e != undefined && e.type === 'mouseover') { // on mouseover the custom select - set data().mouseover
+            $thisSelect.data().mouseover = true; // $.log($thisSelect.data().mouseover);
+        }
+
+        //if mouseout A.select
+        if ($sender.length && e != undefined && e.type === 'mouseout') { // on mouseout the custom select - reset data().mouseover
+            $thisSelect.data().mouseover = false; // $.log($thisSelect.data().mouseover);
+        }
+
+        //if mouseover option <I>
+        if ($sender.length && $sender.get(0).tagName === 'I' && e != undefined && e.type === 'mouseover') { // on mouseover the custom options (I) = add active
+            $thisSelect = $sender; // $.log($thisSelect); // = set to "current I"
+            $thisSelect.siblings().removeClass('active').end().addClass('active');
+        }
+    } //close Custom Select//
+});
+
+// allow a regular link tag to submit a form + make sure the link always works.
+function makeButtonFromLinkFunc() {
+	var $this = $(this);
+    $this.addClass('active'); // use a real class instead of the psuedo-class
+    setTimeout(function() {
+    	$this.removeClass('active').closest('form').submit();
+    }, 200);
+}
+
+function activeStateFunc() {
+	$(this).toggleClass('active');
+}
+
+function backToTopFunc() {
+	$('html, body').animate({
+		scrollTop: 0
+	}, 500);
+}
+
+// prevent default click behavior on all A's on the page that have a pound (#) in their HTML. use event delegation to do it.
+function preventClickDefaultFunc(e) {
+	var sender = (e && e.target) || (window.event && window.event.srcElement),
+        $sender = $(sender); // setup event delegation by creating the special "$sender" variable. make it cross-browser.
+    if ($sender.attr('href') === '#' || $sender.closest('a').attr('href') === '#') e.preventDefault(); // take into account that the sender might be the child of "A"
+}
+
+// -----------------------------------
+
+$(document.body).bind('click.prevDef', preventClickDefaultFunc); // prevent default click behavior on all A's on the page that have a pound (#) in their HTML. use event delegation to do it.
+// running everywhere exept mobile credit guard
+$('div.smallButton, div.buyNow').click(makeButtonFromLinkFunc); // allow a regular link tag to submit a form
+
+//@@@@@
+//END code from all.js - fix the auto changing price from the select
+//@@@@@
+
+// ========================================== end all.js ===========================================
+
+/* Admin Quick Edit */
+$(function() {
+    if ((document.cookie.match(/^(?:.*;)?\s*admin=([^;]+)(?:.*)?$/) || [, null])[1] != null || document.location.search.indexOf("admin=ee1340b7-5dad-48a8-9e4e-7327f1323ca6") > -1) { // check if admin cookie exist or admin current uuid present
+    	$('<script />').attr('type', 'text/javascript').attr('async', true).attr('src', '//s3-eu-west-1.amazonaws.com/konimboassets/layout3/js_plugins/quickedit.js').appendTo('head');
+    }
+});
+
+
+//layout customer club
+$( document ).ready(function() {
+    if($('body').hasClass('customer_club')){
+        $('.layout_contact.customer_club div#show_contact_form').removeClass('col-xs-12 col-sm-4').addClass('col-xs-12 col-sm-12');
+        $('.customer_club #main #show_contact_form #new_ticket').prepend($('.customer_club #main .flashNotice'));
+    }
+});
+
+function returnURLKey(myKey){
+    if(window.location.href.indexOf('?') > -1){
+
+        var key  = window.location.href.split('?')[1];
+        var params_arr = key.split('&');
+        var returned_val ="";
+
+        $.each(params_arr, function(index, val) {
+            var q_key =  val.split('=')[0];
+            var q_val = val.split('=')[1];
+            if(q_key == myKey)
+                returned_val = q_val; 
+        });
+
+
+
+        return decodeURIComponent(returned_val);
+    }
+    else{
+        console.log('no queries found in current URL')
+    }
+}
+
+
+// Sketch Owl Carousel Methods: (20.08.2018)
+
+
+
+function windowResized(event) {
+  var settings  = this;
+  var hybrid_id = settings.hybrid_id;
+  var carouselSettings = settings.carouselSettings;
+  initOwls(hybrid_id, carouselSettings);
+}
+
+function initOwls(hybrid_id, carouselSettings) {
+  addClassWithoutBP(hybrid_id);
+  var bpElement = getBpElement(hybrid_id);
+  var bpPrefix = getBPPrefix(hybrid_id);
+  var owlElements = $(bpElement).find('[class*="owlcarousel"]:not([class*="layout-container"])');
+  owlElements.each(function () {
+    if(!$(this).hasClass("owl-loaded")) {
+      var defaultCarouselSettings = {
+        dotsClass: bpPrefix + "owldots",
+        dotClass: bpPrefix + "owldot"
+      }
+      var carouselSettingsAll = $.extend(defaultCarouselSettings, carouselSettings);
+      carouselSettingsAll     = prepareDataTypes(carouselSettingsAll);
+      // initialize
+      $(this).owlCarousel(carouselSettingsAll);
+      // arrows
+      getRootElement(hybrid_id).find('[class*="arrowleft"]').click(arrowTriggered.bind(this)); // arrow-left
+      getRootElement(hybrid_id).find('[class*="arrowright"]').click(arrowTriggered.bind(this)); // arrow-right
+    }
+  });
+}
+
+function prepareDataTypes(settings) {
+  // this method will force the always string data to be the specific data type needed by owlCarousel documentation
+  var dataTypes = owlCarouselDataTypes();
+  for(var currentProperty in settings) {
+    if (currentProperty == "responsive") {
+      // EXAMPLE:
+      // {
+      //   320: {
+      //     items: 1,
+      //     loop: true
+      //   }
+      // }
+      // bpSize = 320
+      // responsiveProperty = "items" / responsiveProperty = "loop" ...
+      for(var bpSize in settings[currentProperty]) {
+        for(var responsiveProperty in settings[currentProperty][bpSize]) {
+          settings[currentProperty][bpSize][responsiveProperty] = convertDataType(settings[currentProperty][bpSize][responsiveProperty], dataTypes[responsiveProperty]);
+        }
+      }
+    } else {
+      settings[currentProperty] = convertDataType(settings[currentProperty], dataTypes[currentProperty])
+    }
+  }
+  return settings;
+}
+
+function convertDataType(property, type) {
+  if(type == undefined) {
+    return property;
+  }
+  
+  switch (type) {
+    case Number:
+        property = Number(property);
+      break;
+    case Boolean:
+        property = (property == true || property == "true");
+      break;
+  }
+  return property;
+}
+
+function owlCarouselDataTypes() {
+  // This data came from here:
+  // https://owlcarousel2.github.io/OwlCarousel2/docs/api-options.html
+  return {
+    items: Number,
+    nav: Boolean,
+    dots: Boolean,
+    loop: Boolean,
+    margin: Number,
+    center: Boolean,
+    mouseDrag: Boolean,
+    touchDrag: Boolean,
+    pullDrag: Boolean,
+    freeDrag: Boolean,
+    stagePadding: Number,
+    merge: Boolean,
+    mergeFit: Boolean,
+    autoWidth: Boolean,
+    rewind: Boolean,
+    dotsEach: Number,
+    lazyLoad: Boolean,
+    autoplay: Boolean,
+    autoplayTimeout: Number,
+    autoplayHoverPause: Boolean,
+    smartSpeed: Number,
+    autoplaySpeed: Number,
+    navSpeed: Number,
+    dotsSpeed: Number,
+    dragEndSpeed: Number,
+    video: Boolean,
+    videoHeight: Number,
+    videoWidth: Number
+  }
+}
+
+function arrowTriggered(event) {
+  
+  var currentElement = event.target;
+  while (currentElement.className.indexOf("arrow") < 0) {
+    currentElement = currentElement.parentElement;
+  }
+  
+  if(currentElement.className.indexOf("left") > -1) {
+    $(this).trigger("prev.owl.carousel");
+  } else {
+    $(this).trigger("next.owl.carousel");
+  }
+}
+
+function addClassWithoutBP(hybrid_id) {
+  getRootElement(hybrid_id).find('*').each(function (index, currentElement) {
+    var newClasses = getCleanedClasses(currentElement, hybrid_id);
+    $(currentElement).addClass(newClasses);
+  });
+}
+
+function getCleanedClasses(element, hybrid_id) {
+  var bpPrefix   = getBPPrefix(hybrid_id);
+  var newClasses = [];
+  $.each(element.classList, function (index, currentClass) {
+    if(currentClass.indexOf(bpPrefix) >= 0) {
+      newClasses.push(currentClass.replace(bpPrefix, ""));
+    }
+  });
+  return newClasses;
+}
+
+function getBPPrefix(hybrid_id) {
+  var bpPrefix = getBpElement(hybrid_id).className.split('-')[0];
+  
+  if(bpPrefix.indexOf("bp") == -1) {
+    bpPrefix = "";
+  } else {
+    bpPrefix += "-";
+  }
+  
+  return bpPrefix;
+}
+
+function getRootElement(hybrid_id) {
+  // select's the root element by the hybrid_id
+  return $('div.import_element#hybrid_'+hybrid_id).first();
+  
+}
+
+function getBpElement(hybrid_id) {
+  var element = null;
+  getRootElement(hybrid_id).children('div[class*=artboard]').each(function (index, current) {
+    if($(current).css('display') != "none") {
+      element = current;
+    }
+  });
+  return element;
+}
+
+
+
+// End Sketch Owl Carousel Methods
